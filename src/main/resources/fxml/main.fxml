@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.disdev.controller.MainController">
+   <right>
+      <VBox alignment="CENTER" prefHeight="574.0" prefWidth="140.0" BorderPane.alignment="CENTER">
+         <children>
+             <JFXButton fx:id="newResultButton" prefHeight="39.0" prefWidth="378.0" ripplerFill="TRANSPARENT">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <VBox.margin>
+                   <Insets />
+               </VBox.margin>
+            </JFXButton>
+             <JFXButton fx:id="exportButton" prefHeight="39.0" prefWidth="337.0">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
+            <JFXButton fx:id="editButton" />
+             <JFXButton fx:id="deleteButton" buttonType="RAISED" />
+         </children>
+      </VBox>
+   </right>
+   <bottom>
+      <JFXSpinner fx:id="spinner" visible="false" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+             <Insets bottom="10.0" top="10.0" />
+         </BorderPane.margin>
+      </JFXSpinner>
+   </bottom>
+   <center>
+      <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="Опросы">
+               <content>
+                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                        <TableView fx:id="pollTable" />
+                     </content>
+                  </ScrollPane>
+               </content>
+          </Tab>
+          <Tab text="Вопросы">
+               <content>
+                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                        <TableView fx:id="questionTable" />
+                     </content>
+                  </ScrollPane>
+               </content>
+          </Tab>
+            <Tab text="Ответы">
+               <content>
+                  <ScrollPane prefHeight="482.0" prefWidth="598.0">
+                     <content>
+                        <TableView fx:id="answerTable" />
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </center>
+</BorderPane>

@@ -1,0 +1,42 @@
+buildscript {
+	dependencies {
+		classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.7.0'
+	}
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'javafx-gradle-plugin'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    systemProperty "file.encoding", "utf-8"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+    compile 'com.jfoenix:jfoenix:1.0.0'
+	compile 'net.sf.opencsv:opencsv:2.3'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	compile 'de.jensd:fontawesomefx:8.0.10'
+	compile group: 'com.zaxxer', name: 'HikariCP', version: '2.5.1'
+	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.38'
+	testCompile 'junit:junit:4.12'
+}
+
+jfx {
+	mainClass = 'ru.disdev.MainApplication'
+	vendor = 'Yan Comissarov'
+}

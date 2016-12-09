@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="242.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ru.disdev.controller.LoadController">
+    <center>
+        <VBox alignment="CENTER" prefHeight="301.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label fx:id="infoLabel" text="Label">
+                    <VBox.margin>
+                        <Insets bottom="25.0"/>
+                    </VBox.margin>
+                </Label>
+                <JFXProgressBar fx:id="progressBar"/>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
