@@ -12,4 +12,14 @@ public class NumberUtils {
         }
         return Optional.ofNullable(val);
     }
+
+    public static Optional<Integer> parseInt(String value) {
+        Integer val = null;
+        try {
+            val = Integer.parseInt(value);
+        } catch (Exception ignored) {
+
+        }
+        return Optional.ofNullable(val);
+    }
 }

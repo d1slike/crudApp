@@ -1,9 +1,6 @@
 package ru.disdev.controller;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.beans.property.Property;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,21 +14,21 @@ import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import ru.disdev.MainApplication;
-import ru.disdev.entity.Crud;
-import ru.disdev.entity.input.CheckBox;
-import ru.disdev.entity.input.CheckBoxState;
-import ru.disdev.entity.input.ComboBox;
-import ru.disdev.entity.input.TextField;
+import ru.disdev.entity.*;
+import ru.disdev.entity.Enum;
+import ru.disdev.entity.input.*;
 import ru.disdev.entity.input.conditional.Condition;
 import ru.disdev.entity.input.conditional.DependOn;
 import ru.disdev.entity.input.conditional.ElementsList;
-import ru.disdev.entity.input.Valid;
 import ru.disdev.utils.AlertUtils;
 import ru.disdev.utils.FieldValidatorUtils;
 import ru.disdev.utils.NumberUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,12 +73,24 @@ public class InputDataController<T extends Crud> implements Controller {
     }
 
     private Node makeCalcButton(Stage stage) {
-        JFXButton calcButton = new JFXButton("ДОБАВИТЬ");
+        JFXButton calcButton = new JFXButton("СОХРАНИТЬ");
         calcButton.setOnAction(event -> {
             boolean checked = fields.stream()
                     .allMatch(jfxTextField -> jfxTextField.getParent().isDisable() || jfxTextField.validate());
             if (checked) {
+                FieldUtils.getAllFieldsList(crud.getClass())
+                        .forEach(field -> {
+                            try {
+                                field.setAccessible(true);
+                                Property property = (Property) field.get(crud);
+                                property.unbind();
+                            } catch (IllegalAccessException ignored) {
+
+                            }
+                        });
                 closeCallback.accept(crud);
+                crud = null;
+                fields.clear();
                 stage.close();
             }
             event.consume();
@@ -105,6 +114,8 @@ public class InputDataController<T extends Crud> implements Controller {
                     nextElement = mapCheckBox(field.getAnnotation(CheckBox.class), field);
                 } else if (field.isAnnotationPresent(ComboBox.class)) {
                     nextElement = mapComboBox(field.getAnnotation(ComboBox.class), field);
+                } else if (field.isAnnotationPresent(DatePicker.class)) {
+                    nextElement = mapDatePicker(field.getAnnotation(DatePicker.class), field);
                 }
                 if (nextElement != null) {
                     if (row == ELEMENTS_IN_COLUMN) {
@@ -151,14 +162,21 @@ public class InputDataController<T extends Crud> implements Controller {
         }
         textField.textProperty().addListener((observable, oldValue, newValue) -> textField.validate());
         switch (annotation.type()) {
-            case NUMBER:
+            case DOUBLE:
+            case INTEGER:
                 textField.setTextFormatter(FieldValidatorUtils.getNumericTextFilter());
                 try {
                     textField.setText(((Property<Number>) FieldUtils.readField(field, crud)).getValue().toString());
                 } catch (Exception ignored) {
                 }
                 textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    NumberUtils.parseDouble(newValue).ifPresent(value -> {
+                    Number value = null;
+                    if (annotation.type() == Type.INTEGER) {
+                        value = NumberUtils.parseInt(newValue).orElse(null);
+                    } else {
+                        value = NumberUtils.parseDouble(newValue).orElse(null);
+                    }
+                    if (value != null) {
                         Property<Number> numberProperty = null;
                         try {
                             numberProperty = (Property<Number>) FieldUtils.readField(field, crud);
@@ -167,7 +185,7 @@ public class InputDataController<T extends Crud> implements Controller {
                         if (numberProperty != null) {
                             numberProperty.setValue(value);
                         }
-                    });
+                    }
                 });
                 break;
             case STRING:
@@ -203,17 +221,35 @@ public class InputDataController<T extends Crud> implements Controller {
     }
 
     @SuppressWarnings("unchecked")
-    private HBox mapComboBox(ComboBox comboBox, Field field) throws IllegalAccessException {
+    private HBox mapComboBox(ComboBox comboBox, Field field) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         HBox box = new HBox();
         JFXComboBox newBox = null;
-        Class<?> aClass = comboBox.enumClass();
-        if (aClass.isEnum()) {
-            newBox = new JFXComboBox();
-            newBox.getItems().addAll(aClass.getEnumConstants());
-            newBox.valueProperty().bindBidirectional((Property) FieldUtils.readField(field, crud));
+        if (field.isAnnotationPresent(Enum.class)) {
+            Class clazz = field.getAnnotation(Enum.class).value();
+            if (clazz.isEnum()) {
+                newBox = new JFXComboBox();
+                newBox.getItems().addAll(clazz.getEnumConstants());
+                newBox.valueProperty().bindBidirectional((Property) FieldUtils.readField(field, crud));
+                newBox.setValue(newBox.getItems().get(0));
+            }
+        } else if (field.isAnnotationPresent(ValueSource.class)) {
+            String methodName = field.getAnnotation(ValueSource.class).methodName();
+            Map<String, ForeignKey> items =
+                    (Map<String, ForeignKey>) MethodUtils.invokeStaticMethod(ru.disdev.datasource.ValueSource.class, methodName);
+            if (items != null && !items.isEmpty()) {
+                newBox = new JFXComboBox();
+                newBox.getItems().addAll(items.values());
+                Property<ForeignKey> property
+                        = (Property<ForeignKey>) FieldUtils.readField(field, crud);
+                newBox.valueProperty().bindBidirectional(property);
+                if (property.getValue() == null) {
+                    newBox.setValue(newBox.getItems().get(0));
+                } else if (items.containsKey(property.getValue().getValue())) {
+                    property.setValue(items.get(property.getValue().getValue()));
+                }
+            }
         }
         if (newBox != null) {
-            newBox.setValue(newBox.getItems().get(0));
             Tooltip tooltip = new Tooltip(comboBox.description());
             newBox.setTooltip(tooltip);
             Label label = new Label(comboBox.name());
@@ -224,6 +260,28 @@ public class InputDataController<T extends Crud> implements Controller {
             box.getChildren().addAll(label, newBox);
         }
         return box;
+    }
+
+    @SuppressWarnings("unchecked")
+    private HBox mapDatePicker(DatePicker picker, Field field) throws IllegalAccessException {
+        HBox hBox = new HBox();
+        JFXDatePicker datePicker = new JFXDatePicker();
+        datePicker.getEditor().setEditable(false);
+        Property<LocalDate> property = (Property<LocalDate>) field.get(crud);
+        datePicker.valueProperty().bindBidirectional(property);
+        if (property.getValue() == null) {
+            property.setValue(LocalDate.now());
+        }
+        datePicker.setValue(property.getValue());
+        Label label = new Label(picker.name());
+        Tooltip tooltip = new Tooltip(picker.description());
+        label.setTooltip(tooltip);
+        label.setLabelFor(datePicker);
+        label.setAlignment(Pos.CENTER_LEFT);
+        label.setPadding(new Insets(0, 10, 0, 0));
+        datePicker.setTooltip(tooltip);
+        hBox.getChildren().addAll(label, datePicker);
+        return hBox;
     }
 
 }

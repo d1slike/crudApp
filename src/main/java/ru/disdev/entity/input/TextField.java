@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 public @interface TextField {
     String name();
     String description() default "";
-    Type type() default Type.NUMBER;
+
+    Type type() default Type.DOUBLE;
     boolean isRequired() default true;
 }

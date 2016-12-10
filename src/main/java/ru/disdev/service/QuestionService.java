@@ -2,11 +2,11 @@ package ru.disdev.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import ru.disdev.datasource.DataSourceFactory;
+import ru.disdev.dao.QuestionDAO;
+import ru.disdev.entity.crud.Answer;
 import ru.disdev.entity.crud.Question;
-import ru.disdev.jdbchelper.JdbcHelper;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
 public class QuestionService implements Service {
     private static QuestionService ourInstance = new QuestionService();
@@ -19,7 +19,7 @@ public class QuestionService implements Service {
     }
 
     private final ObservableList<Question> questions = FXCollections.observableArrayList();
-    private final JdbcHelper helper = DataSourceFactory.getInstance().getHelper();
+    private final QuestionDAO questionDAO = new QuestionDAO();
 
     public ObservableList<Question> getQuestions() {
         return questions;
@@ -27,22 +27,29 @@ public class QuestionService implements Service {
 
     @Override
     public void load() {
-        ArrayList<Question> questions = helper.queryForList("SELECT * FROM question", rs -> {
-            Question question = new Question();
-            question.setId(rs.getString("id"));
-            question.setTitle(rs.getString("title"));
-            question.setDescription(rs.getString("description"));
-            question.setPollId(rs.getString("poll_id"));
-            return question;
-        });
-        this.questions.addAll(questions);
+        questions.addAll(questionDAO.load());
     }
 
     public void save(Question question) {
-        questions.add(question);
+        if (question.getId() != null) {
+            questions.remove(question);
+        } else {
+            question.setId(UUID.randomUUID().toString());
+        }
+        questions.add(questionDAO.save(question));
     }
 
     public void delete(int index) {
-
+        Question question = questions.remove(index);
+        if (question != null) {
+            questionDAO.delete(question.getId());
+            ObservableList<Answer> answers = AnswerService.getInstance().getAnswers();
+            for (int i = 0, answersSize = answers.size(); i < answersSize; i++) {
+                Answer answer = answers.get(i);
+                if (answer.getQuestionId().getValue().equals(question.getId())) {
+                    AnswerService.getInstance().delete(i);
+                }
+            }
+        }
     }
 }

@@ -13,7 +13,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -83,8 +85,10 @@ public class MainController implements Controller {
         trash.setTextFill(Color.RED);
         deleteButton.setGraphic(trash);
         deleteButton.setOnAction(this::onDeleteButtonClick);
-        tabs.getSelectionModel().selectedIndexProperty()
-                .addListener((observable, oldValue, newValue) -> selectedCrud = newValue.intValue());
+        tabs.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            selectedCrud = newValue.intValue();
+            Stream.of(pollTable, questionTable, answerTable).forEach(tableView -> tableView.getSelectionModel().clearSelection());
+        });
         tabs.getSelectionModel().select(0);
         Stream.of(pollTable, questionTable, answerTable).forEach(tableView ->
                 tableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -92,9 +96,9 @@ public class MainController implements Controller {
                     deleteButton.setVisible(selectedItem != -1);
                     editButton.setVisible(selectedItem != -1);
                 }));
-        fillTableColums(Poll.class, pollTable);
-        fillTableColums(Question.class, questionTable);
-        fillTableColums(Answer.class, answerTable);
+        fillTableColumns(Poll.class, pollTable);
+        fillTableColumns(Question.class, questionTable);
+        fillTableColumns(Answer.class, answerTable);
         pollTable.setItems(PollService.getInstance().getPolls());
         questionTable.setItems(QuestionService.getInstance().getQuestions());
         answerTable.setItems(AnswerService.getInstance().getAnswers());
@@ -102,14 +106,15 @@ public class MainController implements Controller {
 
 
     @SuppressWarnings("unchecked")
-    private <T> void fillTableColums(Class<T> sourceClass, TableView<T> tableView) {
+    private <T> void fillTableColumns(Class<T> sourceClass, TableView<T> tableView) {
         FieldUtils.getFieldsListWithAnnotation(sourceClass, Column.class)
                 .forEach(field -> {
                     field.setAccessible(true);
                     Column annotation = field.getAnnotation(Column.class);
                     TableColumn nextColumn = null;
                     switch (annotation.type()) {
-                        case NUMBER: {
+                        case DOUBLE:
+                        case INTEGER: {
                             TableColumn<T, Number> column = new TableColumn<>();
                             column.setCellValueFactory(param -> {
                                 try {
@@ -160,11 +165,19 @@ public class MainController implements Controller {
                             break;
                         }
                     }
-                    Label label = new Label(annotation.name());
-                    Tooltip tooltip = new Tooltip(annotation.description());
-                    label.setTooltip(tooltip);
-                    nextColumn.setGraphic(label);
-                    tableView.getColumns().add(nextColumn);
+                    if (nextColumn != null) {
+                        Label label = new Label(annotation.name());
+                        label.setTextAlignment(TextAlignment.CENTER);
+                        Tooltip tooltip = new Tooltip(annotation.description());
+                        label.setTooltip(tooltip);
+                        nextColumn.setGraphic(label);
+                        if (annotation.width() == Region.USE_COMPUTED_SIZE) {
+                            nextColumn.setPrefWidth(label.getText().length() * 10);
+                        } else {
+                            nextColumn.setPrefWidth(annotation.width());
+                        }
+                        tableView.getColumns().add(nextColumn);
+                    }
                 });
     }
 
@@ -202,6 +215,13 @@ public class MainController implements Controller {
     }
 
     private void onNewResultButtonClick(ActionEvent event) {
+        if (selectedCrud == 1 && PollService.getInstance().getPolls().isEmpty()) {
+            PopupUtils.warningPopup(root, spinner, "Необходимо добавить опросы!", 3);
+            return;
+        } else if (selectedCrud == 2 && QuestionService.getInstance().getQuestions().isEmpty()) {
+            PopupUtils.warningPopup(root, spinner, "Необходимо добавить вопросы!", 3);
+            return;
+        }
         Platform.runLater(() -> {
             InputDataController controller;
             if (selectedCrud == 0) {
@@ -239,7 +259,7 @@ public class MainController implements Controller {
         event.consume();
     }
 
-    public List<? extends Crud> getSelectedCrudData() {
+    private List<? extends Crud> getSelectedCrudData() {
         switch (selectedCrud) {
             case 0:
                 return PollService.getInstance().getPolls();

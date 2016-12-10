@@ -1,27 +1,21 @@
 package ru.disdev.entity.crud;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import ru.disdev.entity.Crud;
+import javafx.beans.property.*;
+import ru.disdev.entity.*;
+import ru.disdev.entity.input.ComboBox;
+import ru.disdev.entity.input.TextField;
 
 public class Answer extends Crud {
+    @TextField(name = "Текст ответа", description = "Текст ответа", type = Type.STRING)
+    @Column(name = "Текст ответа", description = "Текст ответа", type = Type.STRING)
     private StringProperty title = new SimpleStringProperty();
+    @TextField(name = "Номер ответа", description = "Номер ответа", type = Type.INTEGER)
+    @Column(name = "Номер ответа", description = "Номер ответа", type = Type.INTEGER)
     private IntegerProperty number = new SimpleIntegerProperty();
-    private StringProperty questionId = new SimpleStringProperty();
-
-    public String getQuestionId() {
-        return questionId.get();
-    }
-
-    public StringProperty questionIdProperty() {
-        return questionId;
-    }
-
-    public void setQuestionId(String questionId) {
-        this.questionId.set(questionId);
-    }
+    @ComboBox(name = "Вопрос", description = "Текст вопроса")
+    @Column(name = "Вопрос", description = "Текст вопроса", type = Type.OBJECT)
+    @ValueSource(methodName = "questionId")
+    private ObjectProperty<ForeignKey> questionId = new SimpleObjectProperty<>();
 
     public int getNumber() {
         return number.get();
@@ -45,5 +39,17 @@ public class Answer extends Crud {
 
     public void setTitle(String title) {
         this.title.set(title);
+    }
+
+    public ForeignKey getQuestionId() {
+        return questionId.get();
+    }
+
+    public ObjectProperty<ForeignKey> questionIdProperty() {
+        return questionId;
+    }
+
+    public void setQuestionId(ForeignKey questionId) {
+        this.questionId.set(questionId);
     }
 }

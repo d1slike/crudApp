@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
 <?import com.jfoenix.controls.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.*?>
-
 <BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="855.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.disdev.controller.MainController">
    <right>
       <VBox alignment="CENTER" prefHeight="574.0" prefWidth="140.0" BorderPane.alignment="CENTER">
@@ -47,7 +41,11 @@
                <content>
                   <ScrollPane prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <TableView fx:id="pollTable" />
+                         <TableView fx:id="pollTable">
+                             <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                             </columnResizePolicy>
+                         </TableView>
                      </content>
                   </ScrollPane>
                </content>
@@ -56,7 +54,11 @@
                <content>
                   <ScrollPane prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <TableView fx:id="questionTable" />
+                         <TableView fx:id="questionTable">
+                             <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                             </columnResizePolicy>
+                         </TableView>
                      </content>
                   </ScrollPane>
                </content>
@@ -65,7 +67,11 @@
                <content>
                   <ScrollPane prefHeight="482.0" prefWidth="598.0">
                      <content>
-                        <TableView fx:id="answerTable" />
+                         <TableView fx:id="answerTable">
+                             <columnResizePolicy>
+                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                             </columnResizePolicy>
+                         </TableView>
                      </content>
                   </ScrollPane>
                </content>

@@ -2,11 +2,10 @@ package ru.disdev.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import ru.disdev.datasource.DataSourceFactory;
+import ru.disdev.dao.AnswerDAO;
 import ru.disdev.entity.crud.Answer;
-import ru.disdev.jdbchelper.JdbcHelper;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
 public class AnswerService implements Service {
     private static AnswerService ourInstance = new AnswerService();
@@ -19,7 +18,7 @@ public class AnswerService implements Service {
     }
 
     private final ObservableList<Answer> answers = FXCollections.observableArrayList();
-    private final JdbcHelper helper = DataSourceFactory.getInstance().getHelper();
+    private final AnswerDAO answerDAO = new AnswerDAO();
 
     public ObservableList<Answer> getAnswers() {
         return answers;
@@ -27,21 +26,22 @@ public class AnswerService implements Service {
 
     @Override
     public void load() {
-        ArrayList<Answer> answers = helper.queryForList("SELECT * FROM answer", rs -> {
-            Answer answer = new Answer();
-            answer.setTitle(rs.getString("title"));
-            answer.setNumber(rs.getInt("number"));
-            answer.setQuestionId(rs.getString("question_id"));
-            return answer;
-        });
-        this.answers.addAll(answers);
+        answers.addAll(answerDAO.load());
     }
 
     public void save(Answer answer) {
-        answers.add(answer);
+        if (answer.getId() != null) {
+            answers.remove(answer);
+        } else {
+            answer.setId(UUID.randomUUID().toString());
+        }
+        answers.add(answerDAO.save(answer));
     }
 
-    public void delete(int idex) {
-
+    public void delete(int index) {
+        Answer remove = answers.remove(index);
+        if (remove != null) {
+            answerDAO.delete(remove.getId());
+        }
     }
 }
