@@ -3,15 +3,15 @@ package ru.disdev.datasource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import ru.disdev.jdbchelper.JdbcHelper;
+import ru.disdev.utils.IOUtils;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Properties;
 
 public class DataSourceFactory {
     private static DataSourceFactory ourInstance = new DataSourceFactory();
-
-    private static final String USER = "test";
-    private static final String PASS = "jcnhjdcrjuj18";
-    private static final String URL = "jdbc:mysql://185.5.54.139:3306/lab?characterEncoding=utf-8";
 
     public static DataSourceFactory getInstance() {
         return ourInstance;
@@ -20,10 +20,16 @@ public class DataSourceFactory {
     private final DataSource dataSource;
 
     private DataSourceFactory() {
+        Properties properties = new Properties();
+        try (Reader reader = IOUtils.getResourceAsReader("/props.properties")) {
+            properties.load(reader);
+        } catch (IOException ignored) {
+
+        }
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(URL);
-        config.setUsername(USER);
-        config.setPassword(PASS);
+        config.setJdbcUrl(properties.getProperty("url"));
+        config.setUsername(properties.getProperty("user"));
+        config.setPassword(properties.getProperty("pass"));
         config.setMaximumPoolSize(2);
         dataSource = new HikariDataSource(config);
     }
