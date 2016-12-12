@@ -76,6 +76,32 @@
                   </ScrollPane>
                </content>
             </Tab>
+            <Tab text="Рузультаты">
+                <content>
+                    <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                        <content>
+                            <TableView fx:id="linkTable">
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                </columnResizePolicy>
+                            </TableView>
+                        </content>
+                    </ScrollPane>
+                </content>
+            </Tab>
+            <Tab text="Опрошенные">
+                <content>
+                    <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                        <content>
+                            <TableView fx:id="userTable">
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                </columnResizePolicy>
+                            </TableView>
+                     </content>
+                  </ScrollPane>
+               </content>
+            </Tab>
         </tabs>
       </TabPane>
    </center>

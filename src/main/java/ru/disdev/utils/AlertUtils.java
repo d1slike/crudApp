@@ -22,7 +22,7 @@ public class AlertUtils {
         showAlert(alert);
     }
 
-    public static void showMessageAndCloseProgram(Exception ex) {
+    public static void showMessageAndCloseProgram(Throwable ex) {
         Alert alert = prepareErrorAlertWindow();
         alert.setHeaderText(ex.getMessage());
 

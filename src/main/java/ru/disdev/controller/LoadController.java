@@ -21,7 +21,7 @@ public class LoadController implements Controller {
     public void initialize() {
         TableDataService service = new TableDataService();
         service.setOnSucceeded(event -> MainApplication.nextState());
-        service.setOnFailed(event -> AlertUtils.showMessageAndCloseProgram((Exception) event.getSource().getException()));
+        service.setOnFailed(event -> AlertUtils.showMessageAndCloseProgram(event.getSource().getException()));
         progressBar.progressProperty().bind(service.progressProperty());
         infoLabel.setText(INITIAL_MESSAGE);
         service.start();

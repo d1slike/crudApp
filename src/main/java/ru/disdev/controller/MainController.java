@@ -22,12 +22,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import ru.disdev.MainApplication;
 import ru.disdev.entity.Column;
 import ru.disdev.entity.Crud;
-import ru.disdev.entity.crud.Answer;
-import ru.disdev.entity.crud.Poll;
-import ru.disdev.entity.crud.Question;
-import ru.disdev.service.AnswerService;
-import ru.disdev.service.PollService;
-import ru.disdev.service.QuestionService;
+import ru.disdev.entity.crud.*;
+import ru.disdev.service.*;
 import ru.disdev.tasks.ExportResultService;
 import ru.disdev.utils.PopupUtils;
 
@@ -38,6 +34,8 @@ import java.util.stream.Stream;
 public class MainController implements Controller {
 
     private static final FileChooser.ExtensionFilter CSV_FILER = new FileChooser.ExtensionFilter("CSV file", "*.csv");
+    public TableView<Link> linkTable;
+    public TableView<User> userTable;
     @FXML
     private TabPane tabs;
     @FXML
@@ -87,10 +85,10 @@ public class MainController implements Controller {
         deleteButton.setOnAction(this::onDeleteButtonClick);
         tabs.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             selectedCrud = newValue.intValue();
-            Stream.of(pollTable, questionTable, answerTable).forEach(tableView -> tableView.getSelectionModel().clearSelection());
+            Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView -> tableView.getSelectionModel().clearSelection());
         });
         tabs.getSelectionModel().select(0);
-        Stream.of(pollTable, questionTable, answerTable).forEach(tableView ->
+        Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView ->
                 tableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
                     selectedItem = newValue.intValue();
                     deleteButton.setVisible(selectedItem != -1);
@@ -99,11 +97,14 @@ public class MainController implements Controller {
         fillTableColumns(Poll.class, pollTable);
         fillTableColumns(Question.class, questionTable);
         fillTableColumns(Answer.class, answerTable);
+        fillTableColumns(User.class, userTable);
+        fillTableColumns(Link.class, linkTable);
         pollTable.setItems(PollService.getInstance().getPolls());
         questionTable.setItems(QuestionService.getInstance().getQuestions());
         answerTable.setItems(AnswerService.getInstance().getAnswers());
+        linkTable.setItems(LinkService.getInstance().getLinks());
+        userTable.setItems(UserService.getInstance().getUsers());
     }
-
 
     @SuppressWarnings("unchecked")
     private <T> void fillTableColumns(Class<T> sourceClass, TableView<T> tableView) {
@@ -187,8 +188,12 @@ public class MainController implements Controller {
                 PollService.getInstance().delete(selectedItem);
             } else if (selectedCrud == 1) {
                 QuestionService.getInstance().delete(selectedItem);
-            } else {
+            } else if (selectedCrud == 2) {
                 AnswerService.getInstance().delete(selectedItem);
+            } else if (selectedCrud == 3) {
+                LinkService.getInstance().delete(selectedItem);
+            } else {
+                UserService.getInstance().delete(selectedItem);
             }
         }
     }
@@ -205,9 +210,15 @@ public class MainController implements Controller {
             } else if (selectedCrud == 1) {
                 Question selectedItem = questionTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, question -> QuestionService.getInstance().save(question));
-            } else {
+            } else if (selectedCrud == 2) {
                 Answer selectedItem = answerTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, answer -> AnswerService.getInstance().save(answer));
+            } else if (selectedCrud == 3) {
+                Link link = linkTable.getSelectionModel().getSelectedItem();
+                controller = new InputDataController<>(link, result -> LinkService.getInstance().save(result));
+            } else {
+                User selectedItem = userTable.getSelectionModel().getSelectedItem();
+                controller = new InputDataController<>(selectedItem, user -> UserService.getInstance().save(user));
             }
             controller.initialize();
         });
@@ -221,6 +232,11 @@ public class MainController implements Controller {
         } else if (selectedCrud == 2 && QuestionService.getInstance().getQuestions().isEmpty()) {
             PopupUtils.warningPopup(root, spinner, "Необходимо добавить вопросы!", 3);
             return;
+        } else if (selectedCrud == 3
+                && (AnswerService.getInstance().getAnswers().isEmpty()
+                || UserService.getInstance().getUsers().isEmpty())) {
+            PopupUtils.warningPopup(root, spinner, "Необходимо добавить опрошенных и ответа!", 3);
+            return;
         }
         Platform.runLater(() -> {
             InputDataController controller;
@@ -228,8 +244,12 @@ public class MainController implements Controller {
                 controller = new InputDataController<>(new Poll(), poll -> PollService.getInstance().save(poll));
             } else if (selectedCrud == 1) {
                 controller = new InputDataController<>(new Question(), question -> QuestionService.getInstance().save(question));
-            } else {
+            } else if (selectedCrud == 2) {
                 controller = new InputDataController<>(new Answer(), answer -> AnswerService.getInstance().save(answer));
+            } else if (selectedCrud == 3) {
+                controller = new InputDataController<>(new Link(), link -> LinkService.getInstance().save(link));
+            } else {
+                controller = new InputDataController<>(new User(), user -> UserService.getInstance().save(user));
             }
             controller.initialize();
         });
@@ -267,8 +287,12 @@ public class MainController implements Controller {
                 return QuestionService.getInstance().getQuestions();
             case 2:
                 return AnswerService.getInstance().getAnswers();
+            case 3:
+                return LinkService.getInstance().getLinks();
+            case 4:
+                return UserService.getInstance().getUsers();
             default:
-                return PollService.getInstance().getPolls();
+                return UserService.getInstance().getUsers();
         }
     }
 

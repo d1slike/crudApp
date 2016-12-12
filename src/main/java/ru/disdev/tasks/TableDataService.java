@@ -2,9 +2,9 @@ package ru.disdev.tasks;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import ru.disdev.service.AnswerService;
-import ru.disdev.service.PollService;
-import ru.disdev.service.QuestionService;
+import ru.disdev.service.*;
+
+import java.util.stream.Stream;
 
 public class TableDataService extends Service<Void> {
 
@@ -13,23 +13,17 @@ public class TableDataService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                updateProgress(0, 3);
-                PollService.getInstance().load();
-                updateProgress(1, 3);
-                QuestionService.getInstance().load();
-                updateProgress(2, 3);
-                AnswerService.getInstance().load();
-                updateProgress(3, 3);
+                updateProgress(0, 5);
+                int i[] = new int[1];
+                Stream.of(LinkService.getInstance(), UserService.getInstance(),
+                        PollService.getInstance(), AnswerService.getInstance(),
+                        QuestionService.getInstance()).forEach(service -> {
+                    service.load();
+                    updateProgress(++i[0], 5);
+                });
                 return null;
             }
 
-            protected void updateProgress(long workDone, long max) {
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException ignored) {
-                }
-                super.updateProgress(workDone, max);
-            }
         };
     }
 
