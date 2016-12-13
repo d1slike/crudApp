@@ -4,23 +4,16 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSpinner;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import ru.disdev.MainApplication;
-import ru.disdev.entity.Column;
+import ru.disdev.datasource.ValueSource;
 import ru.disdev.entity.Crud;
 import ru.disdev.entity.crud.*;
 import ru.disdev.service.*;
@@ -31,11 +24,14 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static ru.disdev.utils.TableUtils.fillTableColumns;
+
 public class MainController implements Controller {
 
     private static final FileChooser.ExtensionFilter CSV_FILER = new FileChooser.ExtensionFilter("CSV file", "*.csv");
     public TableView<Link> linkTable;
     public TableView<User> userTable;
+    public JFXButton statisticButton;
     @FXML
     private TabPane tabs;
     @FXML
@@ -79,6 +75,8 @@ public class MainController implements Controller {
         fileChooser.setTitle("Файл для импорта");
         fileChooser.setSelectedExtensionFilter(CSV_FILER);
         deleteButton.setVisible(false);
+        statisticButton.setVisible(false);
+        statisticButton.setOnAction(this::onStatisticButtonClick);
         Icon trash = new Icon("TRASH");
         trash.setTextFill(Color.RED);
         deleteButton.setGraphic(trash);
@@ -93,6 +91,7 @@ public class MainController implements Controller {
                     selectedItem = newValue.intValue();
                     deleteButton.setVisible(selectedItem != -1);
                     editButton.setVisible(selectedItem != -1);
+                    statisticButton.setVisible(selectedItem != -1);
                 }));
         fillTableColumns(Poll.class, pollTable);
         fillTableColumns(Question.class, questionTable);
@@ -104,82 +103,6 @@ public class MainController implements Controller {
         answerTable.setItems(AnswerService.getInstance().getAnswers());
         linkTable.setItems(LinkService.getInstance().getLinks());
         userTable.setItems(UserService.getInstance().getUsers());
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> void fillTableColumns(Class<T> sourceClass, TableView<T> tableView) {
-        FieldUtils.getFieldsListWithAnnotation(sourceClass, Column.class)
-                .forEach(field -> {
-                    field.setAccessible(true);
-                    Column annotation = field.getAnnotation(Column.class);
-                    TableColumn nextColumn = null;
-                    switch (annotation.type()) {
-                        case DOUBLE:
-                        case INTEGER: {
-                            TableColumn<T, Number> column = new TableColumn<>();
-                            column.setCellValueFactory(param -> {
-                                try {
-                                    return (ObservableValue<Number>) FieldUtils.readField(field, param.getValue());
-                                } catch (IllegalAccessException ignored) {
-                                }
-                                return new SimpleIntegerProperty(Integer.MIN_VALUE);
-                            });
-                            nextColumn = column;
-                            break;
-                        }
-                        case STRING: {
-                            TableColumn<T, String> column = new TableColumn<>();
-                            column.setCellValueFactory(param -> {
-                                try {
-                                    return (ObservableValue<String>) FieldUtils.readField(field, param.getValue());
-                                } catch (IllegalAccessException ignored) {
-                                }
-                                return new SimpleStringProperty("bad data");
-                            });
-                            nextColumn = column;
-                            break;
-                        }
-                        case OBJECT: {
-                            TableColumn<T, String> column = new TableColumn<>();
-                            column.setCellValueFactory(param -> {
-                                try {
-                                    ObjectProperty<Object> o = (ObjectProperty<Object>) FieldUtils.readField(field, param.getValue());
-                                    return new SimpleStringProperty(o.getValue().toString());
-                                } catch (IllegalAccessException ignored) {
-                                }
-                                return new SimpleStringProperty("bad data");
-                            });
-                            nextColumn = column;
-                            break;
-                        }
-                        case BOOLEAN: {
-                            TableColumn<T, String> column = new TableColumn<>();
-                            column.setCellValueFactory(param -> {
-                                try {
-                                    Property<Boolean> o = (Property<Boolean>) FieldUtils.readField(field, param.getValue());
-                                    return new SimpleStringProperty(o.getValue() ? "Да" : "Нет");
-                                } catch (IllegalAccessException ignored) {
-                                }
-                                return new SimpleStringProperty("bad data");
-                            });
-                            nextColumn = column;
-                            break;
-                        }
-                    }
-                    if (nextColumn != null) {
-                        Label label = new Label(annotation.name());
-                        label.setTextAlignment(TextAlignment.CENTER);
-                        Tooltip tooltip = new Tooltip(annotation.description());
-                        label.setTooltip(tooltip);
-                        nextColumn.setGraphic(label);
-                        if (annotation.width() == Region.USE_COMPUTED_SIZE) {
-                            nextColumn.setPrefWidth(label.getText().length() * 10);
-                        } else {
-                            nextColumn.setPrefWidth(annotation.width());
-                        }
-                        tableView.getColumns().add(nextColumn);
-                    }
-                });
     }
 
     private void onDeleteButtonClick(ActionEvent event) {
@@ -206,23 +129,48 @@ public class MainController implements Controller {
             InputDataController controller;
             if (selectedCrud == 0) {
                 Poll selectedItem = pollTable.getSelectionModel().getSelectedItem();
-                controller = new InputDataController<>(selectedItem, poll -> PollService.getInstance().save(poll));
+                controller = new InputDataController<>(selectedItem, poll -> {
+                    PollService.getInstance().save(poll);
+                    ValueSource.update();
+                });
             } else if (selectedCrud == 1) {
                 Question selectedItem = questionTable.getSelectionModel().getSelectedItem();
-                controller = new InputDataController<>(selectedItem, question -> QuestionService.getInstance().save(question));
+                controller = new InputDataController<>(selectedItem, question -> {
+                    QuestionService.getInstance().save(question);
+                    ValueSource.update();
+                });
             } else if (selectedCrud == 2) {
                 Answer selectedItem = answerTable.getSelectionModel().getSelectedItem();
-                controller = new InputDataController<>(selectedItem, answer -> AnswerService.getInstance().save(answer));
+                controller = new InputDataController<>(selectedItem, answer -> {
+                    AnswerService.getInstance().save(answer);
+                    ValueSource.update();
+                });
             } else if (selectedCrud == 3) {
                 Link link = linkTable.getSelectionModel().getSelectedItem();
-                controller = new InputDataController<>(link, result -> LinkService.getInstance().save(result));
+                controller = new InputDataController<>(link, result -> {
+                    ValueSource.update();
+                });
             } else {
                 User selectedItem = userTable.getSelectionModel().getSelectedItem();
-                controller = new InputDataController<>(selectedItem, user -> UserService.getInstance().save(user));
+                controller = new InputDataController<>(selectedItem, user -> {
+                    UserService.getInstance().save(user);
+                    ValueSource.update();
+                });
             }
             controller.initialize();
         });
         event.consume();
+    }
+
+    private void onStatisticButtonClick(ActionEvent event) {
+        if (selectedCrud == 1 && selectedItem != -1) {
+            List<QuestionStatistic> questionStatistic = LinkService.getInstance()
+                    .getQuestionStatistic(questionTable.getSelectionModel().getSelectedItem().getId());
+
+            ResultTableController<QuestionStatistic> controller =
+                    new ResultTableController<>(questionStatistic, "Статистика ответов по вопросу", QuestionStatistic.class);
+            controller.initialize();
+        }
     }
 
     private void onNewResultButtonClick(ActionEvent event) {

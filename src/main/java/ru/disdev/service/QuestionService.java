@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.QuestionDAO;
 import ru.disdev.entity.crud.Answer;
+import ru.disdev.entity.crud.Link;
 import ru.disdev.entity.crud.Question;
 
 import java.util.UUID;
@@ -50,6 +51,15 @@ public class QuestionService implements Service {
                     AnswerService.getInstance().delete(i);
                 }
             }
+            ObservableList<Link> links = LinkService.getInstance().getLinks();
+            for (int i = 0, linksSize = links.size(); i < linksSize; i++) {
+                Link link = links.get(i);
+                if (link.getQuestion().getValue().equals(question.getId())) {
+                    LinkService.getInstance().delete(i);
+                }
+
+            }
+
         }
     }
 }

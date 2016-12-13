@@ -20,8 +20,12 @@ public class UserDAO extends DAO<User> {
 
     @Override
     public User save(User crud) {
-        helper.execute("REPLACE INTO user VALUES(?,?,?,?)",
+        helper.execute("INSERT INTO user VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                        "fio=?, birthday=?, sex=?",
                 crud.getId(),
+                crud.getFio(),
+                crud.getBirthday(),
+                crud.getSex().toString(),
                 crud.getFio(),
                 crud.getBirthday(),
                 crud.getSex().toString());

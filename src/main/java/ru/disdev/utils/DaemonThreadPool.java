@@ -15,4 +15,8 @@ public class DaemonThreadPool {
     public static void schedule(Runnable runnable, long delay, TimeUnit unit) {
         EXECUTOR_SERVICE.schedule(runnable, delay, unit);
     }
+
+    public static void execute(Runnable runnable) {
+        EXECUTOR_SERVICE.execute(runnable);
+    }
 }

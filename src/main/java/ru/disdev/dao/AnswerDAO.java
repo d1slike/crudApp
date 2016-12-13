@@ -21,12 +21,26 @@ public class AnswerDAO extends DAO<Answer> {
 
     @Override
     public Answer save(Answer crud) {
-        helper.execute("REPLACE INTO answer VALUES(?, ?, ?, ?)",
+        helper.execute("INSERT INTO answer VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+                        "number=?, title=?, question_id=?",
                 crud.getId(),
+                crud.getNumber(),
+                crud.getTitle(),
+                crud.getQuestionId().getValue(),
                 crud.getNumber(),
                 crud.getTitle(),
                 crud.getQuestionId().getValue());
         return crud;
+    }
+
+    public List<Answer> getAnswersByIds(String ids) {
+        return helper.queryForList("SELECT id, title FROM answer WHERE id IN (?)",
+                rs -> {
+                    Answer answer = new Answer();
+                    answer.setId(rs.getString("id"));
+                    answer.setTitle(rs.getString("title"));
+                    return answer;
+                }, ids);
     }
 
     @Override

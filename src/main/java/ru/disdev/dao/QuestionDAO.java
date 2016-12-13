@@ -21,8 +21,12 @@ public class QuestionDAO extends DAO<Question> {
 
     @Override
     public Question save(Question crud) {
-        helper.execute("REPLACE INTO question VALUES(?, ?, ?, ?)",
+        helper.execute("INSERT INTO question VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+                        "title=?, descption=?, poll_id=?",
                 crud.getId(),
+                crud.getTitle(),
+                crud.getDescription(),
+                crud.getPollId().getValue(),
                 crud.getTitle(),
                 crud.getDescription(),
                 crud.getPollId().getValue());

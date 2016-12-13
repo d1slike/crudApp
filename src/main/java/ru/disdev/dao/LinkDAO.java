@@ -2,6 +2,7 @@ package ru.disdev.dao;
 
 import ru.disdev.entity.ForeignKey;
 import ru.disdev.entity.crud.Link;
+import ru.disdev.jdbchelper.QueryResult;
 
 import java.util.List;
 
@@ -24,6 +25,20 @@ public class LinkDAO extends DAO<Link> {
                 crud.getAnswer().getValue(),
                 crud.getUser().getValue());
         return crud;
+    }
+
+    public Integer getTotalQuestionAnswerCount(String questionId) {
+        return helper.queryForObject("SELECT count(*) AS count, " +
+                "question_id FROM link " +
+                "GROUP BY question_id " +
+                "HAVING question_id = ?", rs -> rs.getInt("count"), questionId);
+    }
+
+    public QueryResult getAnswerCount(String questionId) {
+        return helper.query("SELECT answer_id, count(*) AS count " +
+                "FROM link " +
+                "WHERE question_id = ? " +
+                "GROUP BY answer_id", questionId);
     }
 
     @Override

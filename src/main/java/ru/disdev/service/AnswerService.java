@@ -3,9 +3,14 @@ package ru.disdev.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.AnswerDAO;
+import ru.disdev.entity.Crud;
 import ru.disdev.entity.crud.Answer;
+import ru.disdev.entity.crud.Link;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class AnswerService implements Service {
     private static AnswerService ourInstance = new AnswerService();
@@ -38,10 +43,23 @@ public class AnswerService implements Service {
         answers.add(answerDAO.save(answer));
     }
 
+    public Map<String, String> getIdTitleMap(Set<String> ids) {
+        return answerDAO.getAnswersByIds(String.join(",", ids)).stream()
+                .collect(Collectors.toMap(Crud::getId, Answer::getTitle));
+    }
+
     public void delete(int index) {
         Answer remove = answers.remove(index);
         if (remove != null) {
             answerDAO.delete(remove.getId());
+            ObservableList<Link> links = LinkService.getInstance().getLinks();
+            for (int i = 0, linksSize = links.size(); i < linksSize; i++) {
+                Link link = links.get(i);
+                if (link.getAnswer().getValue().equals(remove.getId())) {
+                    LinkService.getInstance().delete(i);
+                }
+
+            }
         }
     }
 }
