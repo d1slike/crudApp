@@ -2,7 +2,6 @@ package ru.disdev;
 
 import com.jfoenix.controls.JFXDecorator;
 import javafx.application.Application;
-import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -58,7 +57,7 @@ public class MainApplication extends Application {
     }
 
     public static void nextState(Object payload) {
-        currentState = currentState == null ? State.UPDATE : currentState.next();
+        currentState = currentState == null ? State.MAIN : currentState.next();
         updateState(null);
     }
 
@@ -122,10 +121,10 @@ public class MainApplication extends Application {
 
 
     private enum State {
-        UPDATE("update.fxml", stage -> {
+        /*UPDATE("update.fxml", stage -> {
             stage.setResizable(false);
             stage.setOnCloseRequest(Event::consume);
-        }),
+        }),*/
         MAIN("main.fxml", stage -> {
             stage.setResizable(true);
             stage.setOnCloseRequest(null);
