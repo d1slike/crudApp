@@ -36,7 +36,7 @@ public class LinkService implements Service {
         Map<String, ForeignKey> answerId = ValueSource.answerId();
         Map<String, ForeignKey> questionId = ValueSource.questionId();
         Map<String, ForeignKey> userId = ValueSource.userId();
-        List<Link> list = linkDAO.load();
+        List<Link> list = linkDAO.findAll();
         list.forEach(link -> {
             ForeignKey user = userId.get(link.getUser().getValue());
             if (user != null) {

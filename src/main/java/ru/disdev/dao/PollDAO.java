@@ -8,7 +8,7 @@ import java.util.List;
 public class PollDAO extends DAO<Poll> {
 
     @Override
-    public List<Poll> load() {
+    public List<Poll> findAll() {
         return helper.query("SELECT * FROM poll", (rs, index) -> {
             Poll poll = new Poll();
             poll.setId(rs.getString("id"));

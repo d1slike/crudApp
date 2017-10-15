@@ -26,7 +26,7 @@ public class AnswerService implements Service {
 
     public ObservableList<Answer> getAnswers() {
         Map<String, ForeignKey> questionId = ValueSource.questionId();
-        List<Answer> list = answerDAO.load();
+        List<Answer> list = answerDAO.findAll();
         list.forEach(answer -> {
             ForeignKey foreignKey = answer.getQuestionId();
             if (questionId.containsKey(foreignKey.getValue())) {

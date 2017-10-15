@@ -7,7 +7,7 @@ import java.util.List;
 
 public class UserDAO extends DAO<User> {
     @Override
-    public List<User> load() {
+    public List<User> findAll() {
         return helper.query("SELECT * FROM user", (rs, index) -> {
             User user = new User();
             user.setId(rs.getString("id"));

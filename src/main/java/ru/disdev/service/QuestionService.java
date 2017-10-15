@@ -25,7 +25,7 @@ public class QuestionService implements Service {
     private final QuestionDAO questionDAO = new QuestionDAO();
 
     public ObservableList<Question> getQuestions() {
-        List<Question> list = questionDAO.load();
+        List<Question> list = questionDAO.findAll();
         Map<String, ForeignKey> pollId = ValueSource.pollId();
         list.forEach(question -> {
             ForeignKey foreignKey = question.getPollId();
@@ -39,7 +39,7 @@ public class QuestionService implements Service {
 
     @Override
     public void load() {
-        //questions.addAll(questionDAO.load());
+        //questions.addAll(questionDAO.findAll());
     }
 
     public void save(Question question) {

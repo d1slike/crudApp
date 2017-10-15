@@ -8,7 +8,7 @@ import java.util.List;
 
 public class LinkDAO extends DAO<Link> {
     @Override
-    public List<Link> load() {
+    public List<Link> findAll() {
         return helper.query("SELECT * FROM link", (rs, index) -> {
             Link link = new Link();
             link.setAnswer(new ForeignKey(rs.getString("answer_id"), null));

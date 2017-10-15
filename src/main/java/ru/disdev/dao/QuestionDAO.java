@@ -8,7 +8,7 @@ import java.util.List;
 public class QuestionDAO extends DAO<Question> {
 
     @Override
-    public List<Question> load() {
+    public List<Question> findAll() {
         return helper.query("SELECT * FROM question", (rs, index) -> {
             Question question = new Question();
             question.setId(rs.getString("id"));

@@ -10,7 +10,7 @@ import java.util.List;
 public class AnswerDAO extends DAO<Answer> {
 
     @Override
-    public List<Answer> load() {
+    public List<Answer> findAll() {
         return helper.query("SELECT * FROM answer", (rs, index) -> {
             Answer answer = new Answer();
             answer.setId(rs.getString("id"));

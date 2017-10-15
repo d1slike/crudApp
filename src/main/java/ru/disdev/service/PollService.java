@@ -21,7 +21,7 @@ public class PollService implements Service {
     private final PollDAO pollDAO = new PollDAO();
 
     public ObservableList<Poll> getPolls() {
-        polls = FXCollections.observableArrayList(pollDAO.load());
+        polls = FXCollections.observableArrayList(pollDAO.findAll());
         return polls;
     }
 

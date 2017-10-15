@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class DAO<T extends Crud> {
     protected static final JdbcTemplate helper = DataSourceFactory.getInstance().getHelper();
 
-    public abstract List<T> load();
+    public abstract List<T> findAll();
 
     public abstract T save(T crud);
 
