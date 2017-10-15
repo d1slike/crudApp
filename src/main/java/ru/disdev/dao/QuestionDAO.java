@@ -13,7 +13,7 @@ public class QuestionDAO extends DAO<Question> {
             Question question = new Question();
             question.setId(rs.getString("id"));
             question.setTitle(rs.getString("title"));
-            question.setDescription(rs.getString("descption"));
+            question.setDescription(rs.getString("description"));
             question.setPollId(new ForeignKey(rs.getString("poll_id"), null));
             return question;
         });

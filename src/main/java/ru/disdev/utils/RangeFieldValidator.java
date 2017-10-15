@@ -17,7 +17,7 @@ public class RangeFieldValidator extends ValidatorBase {
     protected void eval() {
         if (srcControl.get() != null && srcControl.get() instanceof TextInputControl) {
             TextInputControl textField = (TextInputControl) srcControl.get();
-            double value = NumberUtils.parseDouble(textField.getText()).orElse(0.0);
+            double value = ParseUtils.parseDouble(textField.getText()).orElse(0.0);
             boolean valid = value > min && value <= max;
             hasErrors.setValue(!valid);
         }

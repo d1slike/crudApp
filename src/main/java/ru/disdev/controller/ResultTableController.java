@@ -40,7 +40,7 @@ public class ResultTableController<T> implements Controller {
         }
         ScrollPane root = new ScrollPane(table);
         root.setPadding(new Insets(15));
-        Stage stage = MainApplication.newChildStage();
+        Stage stage = MainApplication.newChildStage("Результаты");
         Label noResult = new Label("Нет резульатов");
         Label header = new Label(this.header);
         Stream.of(noResult, header).forEach(label -> {
@@ -50,7 +50,7 @@ public class ResultTableController<T> implements Controller {
         });
         BorderPane borderPane = new BorderPane(data.isEmpty() ? noResult : root);
         borderPane.setTop(header);
-        stage.setScene(MainApplication.newScene(borderPane));
+        stage.setScene(MainApplication.newScene(stage, borderPane, null));
         stage.showAndWait();
     }
 }

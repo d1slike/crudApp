@@ -175,15 +175,15 @@ public class MainController implements Controller {
 
     private void onNewResultButtonClick(ActionEvent event) {
         if (selectedCrud == 1 && PollService.getInstance().getPolls().isEmpty()) {
-            PopupUtils.warningPopup(root, spinner, "Необходимо добавить опросы!", 3);
+            PopupUtils.warningPopup(root, "Необходимо добавить опросы!", 3);
             return;
         } else if (selectedCrud == 2 && QuestionService.getInstance().getQuestions().isEmpty()) {
-            PopupUtils.warningPopup(root, spinner, "Необходимо добавить вопросы!", 3);
+            PopupUtils.warningPopup(root, "Необходимо добавить вопросы!", 3);
             return;
         } else if (selectedCrud == 3
                 && (AnswerService.getInstance().getAnswers().isEmpty()
                 || UserService.getInstance().getUsers().isEmpty())) {
-            PopupUtils.warningPopup(root, spinner, "Необходимо добавить опрошенных и ответа!", 3);
+            PopupUtils.warningPopup(root, "Необходимо добавить опрошенных и ответа!", 3);
             return;
         }
         Platform.runLater(() -> {
@@ -213,12 +213,12 @@ public class MainController implements Controller {
             service.setOnSucceeded(e -> {
                 updateControlStatus(true);
                 spinner.setVisible(false);
-                PopupUtils.infoPoup(root, spinner, "Данные успешно экспортированы", 3);
+                PopupUtils.infoPopup(root, "Данные успешно экспортированы", 3);
             });
             service.setOnFailed(e -> {
                 updateControlStatus(true);
                 spinner.setVisible(false);
-                PopupUtils.warningPopup(root, spinner, "Ошибка при экспорте данных", 3);
+                PopupUtils.warningPopup(root, "Ошибка при экспорте данных", 3);
             });
             service.start();
         } else {

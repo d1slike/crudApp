@@ -16,7 +16,7 @@ public class DataSourceFactory {
     private final DataSource dataSource;
 
     private DataSourceFactory() {
-        HikariConfig config = new HikariConfig("/prop.properties");
+        HikariConfig config = new HikariConfig("/ds.properties");
         dataSource = new HikariDataSource(config);
     }
 

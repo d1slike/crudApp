@@ -7,4 +7,5 @@ public enum Type {
     OBJECT,
     BOOLEAN,
     DATE,
+    PASSWORD,
 }

@@ -5,9 +5,8 @@ import de.jensd.fx.fontawesome.Icon;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
 import java.util.concurrent.TimeUnit;
@@ -22,19 +21,18 @@ public class PopupUtils {
         WARNING_ICON.setPadding(insets);
         WARNING_ICON.setTextFill(Color.RED);
         INFO_ICON.setPadding(insets);
-        INFO_ICON.setTextFill(Color.CYAN);
+        INFO_ICON.setTextFill(Color.BLUE);
     }
 
-    public static JFXPopup warningPopup(Pane container, Node source, String message, int secondsToShow) {
-        return showPopup(container, source, message, secondsToShow, WARNING_ICON, "");
+    public static JFXPopup warningPopup(Region container, String message, int secondsToShow) {
+        return showPopup(container, message, secondsToShow, WARNING_ICON, "");
     }
 
-    public static JFXPopup infoPoup(Pane container, Node source, String message, int secondsToShow) {
-        return showPopup(container, source, message, secondsToShow, INFO_ICON, "");
+    public static JFXPopup infoPopup(Region container, String message, int secondsToShow) {
+        return showPopup(container, message, secondsToShow, INFO_ICON, "");
     }
 
-    private static JFXPopup showPopup(Pane container,
-                                      Node source,
+    private static JFXPopup showPopup(Region container,
                                       String message,
                                       int secondsToShow,
                                       Icon icon,
@@ -42,12 +40,13 @@ public class PopupUtils {
         Label label = new Label(message);
         label.setAlignment(Pos.CENTER);
         label.setGraphic(icon);
+        label.setWrapText(true);
+        label.setPrefWidth(Region.USE_COMPUTED_SIZE);
         label.setPadding(new Insets(20));
         //label.getStylesheets().add(textStyle);
-        JFXPopup popup = new JFXPopup(container, label);
-        popup.setSource(source);
-        popup.show(JFXPopup.PopupVPosition.BOTTOM, JFXPopup.PopupHPosition.RIGHT);
-        DaemonThreadPool.schedule(() -> Platform.runLater(popup::close), secondsToShow, TimeUnit.SECONDS);
+        JFXPopup popup = new JFXPopup(label);
+        popup.show(container, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT);
+        DaemonThreadPool.schedule(() -> Platform.runLater(popup::hide), secondsToShow, TimeUnit.SECONDS);
         return popup;
 
     }
