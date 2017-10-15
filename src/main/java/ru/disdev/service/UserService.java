@@ -17,12 +17,12 @@ public class UserService implements Service {
     private UserService() {
     }
 
-    private final ObservableList<User> users = FXCollections.observableArrayList();
+    private ObservableList<User> users = FXCollections.observableArrayList();
     private final UserDAO userDAO = new UserDAO();
 
     @Override
     public void load() {
-        users.addAll(userDAO.load());
+
     }
 
     @Override
@@ -34,6 +34,7 @@ public class UserService implements Service {
     }
 
     public ObservableList<User> getUsers() {
+        users = FXCollections.observableArrayList(userDAO.load());
         return users;
     }
 

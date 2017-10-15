@@ -3,6 +3,8 @@ package ru.disdev.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.LinkDAO;
+import ru.disdev.datasource.ValueSource;
+import ru.disdev.entity.ForeignKey;
 import ru.disdev.entity.crud.Link;
 import ru.disdev.entity.crud.QuestionStatistic;
 
@@ -22,12 +24,35 @@ public class LinkService implements Service {
     private LinkService() {
     }
 
-    private final ObservableList<Link> links = FXCollections.observableArrayList();
+    private ObservableList<Link> links = FXCollections.observableArrayList();
     private final LinkDAO linkDAO = new LinkDAO();
 
     @Override
     public void load() {
-        links.addAll(linkDAO.load());
+
+    }
+
+    public ObservableList<Link> getLinks() {
+        Map<String, ForeignKey> answerId = ValueSource.answerId();
+        Map<String, ForeignKey> questionId = ValueSource.questionId();
+        Map<String, ForeignKey> userId = ValueSource.userId();
+        List<Link> list = linkDAO.load();
+        list.forEach(link -> {
+            ForeignKey user = userId.get(link.getUser().getValue());
+            if (user != null) {
+                link.setUser(user);
+            }
+            ForeignKey answer = answerId.get(link.getAnswer().getValue());
+            if (answer != null) {
+                link.setAnswer(answer);
+            }
+            ForeignKey question = questionId.get(link.getQuestion().getValue());
+            if (question != null) {
+                link.setQuestion(question);
+            }
+        });
+        links = FXCollections.observableArrayList(list);
+        return links;
     }
 
     public void save(Link link) {
@@ -58,7 +83,4 @@ public class LinkService implements Service {
         return questionStatistics;
     }
 
-    public ObservableList<Link> getLinks() {
-        return links;
-    }
 }

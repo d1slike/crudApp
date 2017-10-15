@@ -17,16 +17,17 @@ public class PollService implements Service {
     private PollService() {
     }
 
-    private final ObservableList<Poll> polls = FXCollections.observableArrayList();
+    private ObservableList<Poll> polls = FXCollections.observableArrayList();
     private final PollDAO pollDAO = new PollDAO();
 
     public ObservableList<Poll> getPolls() {
+        polls = FXCollections.observableArrayList(pollDAO.load());
         return polls;
     }
 
     @Override
     public void load() {
-        polls.addAll(pollDAO.load());
+
     }
 
     public void save(Poll poll) {

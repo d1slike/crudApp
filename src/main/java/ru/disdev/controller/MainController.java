@@ -12,7 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import ru.disdev.MainApplication;
-import ru.disdev.datasource.ValueSource;
 import ru.disdev.entity.Crud;
 import ru.disdev.entity.crud.*;
 import ru.disdev.service.*;
@@ -21,6 +20,7 @@ import ru.disdev.utils.PopupUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static ru.disdev.utils.TableUtils.fillTableColumns;
@@ -80,13 +80,29 @@ public class MainController implements Controller {
             selectedCrud = newValue.intValue();
             Stream.of(pollTable, questionTable, answerTable, userTable, linkTable)
                     .forEach(tableView -> tableView.getSelectionModel().clearSelection());
+            if (selectedCrud == 0) {
+                CompletableFuture.supplyAsync(() -> PollService.getInstance().getPolls())
+                        .thenAccept(list -> Platform.runLater(() -> pollTable.setItems(list)));
+            } else if (selectedCrud == 1) {
+                CompletableFuture.supplyAsync(() -> QuestionService.getInstance().getQuestions())
+                        .thenAccept(list -> Platform.runLater(() -> questionTable.setItems(list)));
+            } else if (selectedCrud == 2) {
+                CompletableFuture.supplyAsync(() -> AnswerService.getInstance().getAnswers())
+                        .thenAccept(list -> Platform.runLater(() -> answerTable.setItems(list)));
+            } else if (selectedCrud == 3) {
+                CompletableFuture.supplyAsync(() -> LinkService.getInstance().getLinks())
+                        .thenAccept(list -> Platform.runLater(() -> linkTable.setItems(list)));
+            } else {
+                CompletableFuture.supplyAsync(() -> UserService.getInstance().getUsers())
+                        .thenAccept(list -> Platform.runLater(() -> userTable.setItems(list)));
+            }
         });
         tabs.getSelectionModel().select(0);
         Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView ->
                 tableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
                     selectedItem = newValue.intValue();
                     deleteButton.setVisible(selectedItem != -1);
-                    editButton.setVisible(selectedItem != -1);
+                    editButton.setVisible(selectedItem != -1 && selectedCrud != 3);
                     statisticButton.setVisible(selectedItem != -1);
                 }));
         fillTableColumns(Poll.class, pollTable);
@@ -95,10 +111,6 @@ public class MainController implements Controller {
         fillTableColumns(User.class, userTable);
         fillTableColumns(Link.class, linkTable);
         pollTable.setItems(PollService.getInstance().getPolls());
-        questionTable.setItems(QuestionService.getInstance().getQuestions());
-        answerTable.setItems(AnswerService.getInstance().getAnswers());
-        linkTable.setItems(LinkService.getInstance().getLinks());
-        userTable.setItems(UserService.getInstance().getUsers());
     }
 
     private void onDeleteButtonClick(ActionEvent event) {
@@ -127,30 +139,26 @@ public class MainController implements Controller {
                 Poll selectedItem = pollTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, poll -> {
                     PollService.getInstance().save(poll);
-                    ValueSource.update();
                 });
             } else if (selectedCrud == 1) {
                 Question selectedItem = questionTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, question -> {
                     QuestionService.getInstance().save(question);
-                    ValueSource.update();
                 });
             } else if (selectedCrud == 2) {
                 Answer selectedItem = answerTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, answer -> {
                     AnswerService.getInstance().save(answer);
-                    ValueSource.update();
                 });
             } else if (selectedCrud == 3) {
                 Link link = linkTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(link, result -> {
-                    ValueSource.update();
+
                 });
             } else {
                 User selectedItem = userTable.getSelectionModel().getSelectedItem();
                 controller = new InputDataController<>(selectedItem, user -> {
                     UserService.getInstance().save(user);
-                    ValueSource.update();
                 });
             }
             controller.show();

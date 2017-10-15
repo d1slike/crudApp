@@ -3,8 +3,12 @@ package ru.disdev.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.QuestionDAO;
+import ru.disdev.datasource.ValueSource;
+import ru.disdev.entity.ForeignKey;
 import ru.disdev.entity.crud.Question;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class QuestionService implements Service {
@@ -17,16 +21,25 @@ public class QuestionService implements Service {
     private QuestionService() {
     }
 
-    private final ObservableList<Question> questions = FXCollections.observableArrayList();
+    private ObservableList<Question> questions = FXCollections.observableArrayList();
     private final QuestionDAO questionDAO = new QuestionDAO();
 
     public ObservableList<Question> getQuestions() {
+        List<Question> list = questionDAO.load();
+        Map<String, ForeignKey> pollId = ValueSource.pollId();
+        list.forEach(question -> {
+            ForeignKey foreignKey = question.getPollId();
+            if (pollId.containsKey(foreignKey.getValue())) {
+                question.setPollId(pollId.get(foreignKey.getValue()));
+            }
+        });
+        questions = FXCollections.observableArrayList(list);
         return questions;
     }
 
     @Override
     public void load() {
-        questions.addAll(questionDAO.load());
+        //questions.addAll(questionDAO.load());
     }
 
     public void save(Question question) {

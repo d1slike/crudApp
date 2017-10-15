@@ -50,7 +50,6 @@ public class User extends Crud {
         this.birthday.set(birthday);
     }
 
-
     public Sex getSex() {
         return sex.get();
     }
