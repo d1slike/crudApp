@@ -6,6 +6,7 @@ import ru.disdev.dao.AnswerDAO;
 import ru.disdev.entity.Crud;
 import ru.disdev.entity.crud.Answer;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -43,7 +44,7 @@ public class AnswerService implements Service {
     }
 
     public Map<String, String> getIdTitleMap(Set<String> ids) {
-        return answerDAO.getAnswersByIds(String.join(",", ids)).stream()
+        return answerDAO.getAnswersByIds(new ArrayList<>(ids)).stream()
                 .collect(Collectors.toMap(Crud::getId, Answer::getTitle));
     }
 

@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import ru.disdev.dao.LinkDAO;
 import ru.disdev.entity.crud.Link;
 import ru.disdev.entity.crud.QuestionStatistic;
-import ru.disdev.jdbchelper.QueryResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,15 +48,7 @@ public class LinkService implements Service {
         if (questionAnswerCount == null || questionAnswerCount == 0) {
             return new ArrayList<>();
         }
-        List<QuestionStatistic> questionStatistics = new ArrayList<>();
-        try (QueryResult answerCount = linkDAO.getAnswerCount(questionId)) {
-            while (answerCount.next()) {
-                QuestionStatistic questionStatistic = new QuestionStatistic();
-                questionStatistic.setAnswer(answerCount.getString("answer_id"));
-                questionStatistic.setStatistic((((double) answerCount.getInt("count") / (double) questionAnswerCount) * 100.) + "%");
-                questionStatistics.add(questionStatistic);
-            }
-        }
+        List<QuestionStatistic> questionStatistics = linkDAO.getAnswerCount(questionId, questionAnswerCount);
         Set<String> ids = questionStatistics.stream()
                 .map(QuestionStatistic::getAnswer)
                 .collect(Collectors.toSet());

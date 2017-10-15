@@ -9,7 +9,7 @@ public class PollDAO extends DAO<Poll> {
 
     @Override
     public List<Poll> load() {
-        return helper.queryForList("SELECT * FROM poll", rs -> {
+        return helper.query("SELECT * FROM poll", (rs, index) -> {
             Poll poll = new Poll();
             poll.setId(rs.getString("id"));
             poll.setTitle(rs.getString("title"));
@@ -22,7 +22,7 @@ public class PollDAO extends DAO<Poll> {
 
     @Override
     public Poll save(Poll poll) {
-        helper.execute("INSERT INTO poll(id, title, category, start_date, end_date) VALUES(?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+        helper.update("INSERT INTO poll(id, title, category, start_date, end_date) VALUES(?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                         "title=?, category=?, start_date=?, end_date=?",
                 poll.getId(),
                 poll.getTitle(),
@@ -38,6 +38,6 @@ public class PollDAO extends DAO<Poll> {
 
     @Override
     public boolean delete(String id) {
-        return helper.execute("DELETE FROM poll WHERE id = ?", id) > 0;
+        return helper.update("DELETE FROM poll WHERE id = ?", id) > 0;
     }
 }

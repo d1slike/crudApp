@@ -78,7 +78,8 @@ public class MainController implements Controller {
         deleteButton.setOnAction(this::onDeleteButtonClick);
         tabs.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             selectedCrud = newValue.intValue();
-            Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView -> tableView.getSelectionModel().clearSelection());
+            Stream.of(pollTable, questionTable, answerTable, userTable, linkTable)
+                    .forEach(tableView -> tableView.getSelectionModel().clearSelection());
         });
         tabs.getSelectionModel().select(0);
         Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView ->

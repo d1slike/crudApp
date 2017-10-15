@@ -1,15 +1,17 @@
 package ru.disdev.dao;
 
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.disdev.entity.ForeignKey;
 import ru.disdev.entity.crud.Answer;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AnswerDAO extends DAO<Answer> {
 
     @Override
     public List<Answer> load() {
-        return helper.queryForList("SELECT * FROM answer", rs -> {
+        return helper.query("SELECT * FROM answer", (rs, index) -> {
             Answer answer = new Answer();
             answer.setId(rs.getString("id"));
             answer.setTitle(rs.getString("title"));
@@ -21,7 +23,7 @@ public class AnswerDAO extends DAO<Answer> {
 
     @Override
     public Answer save(Answer crud) {
-        helper.execute("INSERT INTO answer(id, number, title, question_id) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+        helper.update("INSERT INTO answer(id, number, title, question_id) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                         "number=?, title=?, question_id=?",
                 crud.getId(),
                 crud.getNumber(),
@@ -33,18 +35,20 @@ public class AnswerDAO extends DAO<Answer> {
         return crud;
     }
 
-    public List<Answer> getAnswersByIds(String ids) {
-        return helper.queryForList("SELECT id, title FROM answer WHERE id IN (?)",
-                rs -> {
+    public List<Answer> getAnswersByIds(List<String> idList) {
+        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(helper);
+        return template.query("SELECT id, title FROM answer WHERE id IN (:id)",
+                Collections.singletonMap("id", idList),
+                (rs, index) -> {
                     Answer answer = new Answer();
                     answer.setId(rs.getString("id"));
                     answer.setTitle(rs.getString("title"));
                     return answer;
-                }, ids);
+                });
     }
 
     @Override
     public boolean delete(String id) {
-        return helper.execute("DELETE FROM answer WHERE id = ?", id) > 0;
+        return helper.update("DELETE FROM answer WHERE id = ?", id) > 0;
     }
 }

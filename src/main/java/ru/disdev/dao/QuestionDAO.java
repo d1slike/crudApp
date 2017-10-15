@@ -9,7 +9,7 @@ public class QuestionDAO extends DAO<Question> {
 
     @Override
     public List<Question> load() {
-        return helper.queryForList("SELECT * FROM question", rs -> {
+        return helper.query("SELECT * FROM question", (rs, index) -> {
             Question question = new Question();
             question.setId(rs.getString("id"));
             question.setTitle(rs.getString("title"));
@@ -21,7 +21,7 @@ public class QuestionDAO extends DAO<Question> {
 
     @Override
     public Question save(Question crud) {
-        helper.execute("INSERT INTO question VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+        helper.update("INSERT INTO question VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                         "title=?, description=?, poll_id=?",
                 crud.getId(),
                 crud.getTitle(),
@@ -35,6 +35,6 @@ public class QuestionDAO extends DAO<Question> {
 
     @Override
     public boolean delete(String id) {
-        return helper.execute("DELETE FROM question WHERE id = ?", id) > 0;
+        return helper.update("DELETE FROM question WHERE id = ?", id) > 0;
     }
 }

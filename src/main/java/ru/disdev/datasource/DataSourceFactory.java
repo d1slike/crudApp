@@ -2,7 +2,7 @@ package ru.disdev.datasource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import ru.disdev.jdbchelper.JdbcHelper;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
@@ -20,7 +20,7 @@ public class DataSourceFactory {
         dataSource = new HikariDataSource(config);
     }
 
-    public JdbcHelper getHelper() {
-        return new JdbcHelper(dataSource);
+    public JdbcTemplate getHelper() {
+        return new JdbcTemplate(dataSource);
     }
 }

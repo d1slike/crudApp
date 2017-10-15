@@ -1,13 +1,13 @@
 package ru.disdev.dao;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.disdev.datasource.DataSourceFactory;
 import ru.disdev.entity.Crud;
-import ru.disdev.jdbchelper.JdbcHelper;
 
 import java.util.List;
 
 public abstract class DAO<T extends Crud> {
-    protected static final JdbcHelper helper = DataSourceFactory.getInstance().getHelper();
+    protected static final JdbcTemplate helper = DataSourceFactory.getInstance().getHelper();
 
     public abstract List<T> load();
 

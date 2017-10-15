@@ -42,7 +42,9 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     compile 'com.jfoenix:jfoenix:1.4.0'
 	compile 'net.sf.opencsv:opencsv:2.3'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+	// https://mvnrepository.com/artifact/org.springframework/spring-jdbc
+	compile group: 'org.springframework', name: 'spring-jdbc', version: '5.0.0.RELEASE'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
 	compile 'de.jensd:fontawesomefx:8.0.10'
 	compile group: 'com.zaxxer', name: 'HikariCP', version: '2.7.2'
 	compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.38'

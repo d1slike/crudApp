@@ -8,7 +8,7 @@ import java.util.List;
 public class UserDAO extends DAO<User> {
     @Override
     public List<User> load() {
-        return helper.queryForList("SELECT * FROM user", rs -> {
+        return helper.query("SELECT * FROM user", (rs, index) -> {
             User user = new User();
             user.setId(rs.getString("id"));
             user.setBirthday(rs.getDate("birthday").toLocalDate());
@@ -20,7 +20,7 @@ public class UserDAO extends DAO<User> {
 
     @Override
     public User save(User crud) {
-        helper.execute("INSERT INTO user(id, fio, birthday, sex) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE " +
+        helper.update("INSERT INTO user(id, fio, birthday, sex) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE " +
                         "fio=?, birthday=?, sex=?",
                 crud.getId(),
                 crud.getFio(),
@@ -34,6 +34,6 @@ public class UserDAO extends DAO<User> {
 
     @Override
     public boolean delete(String id) {
-        return helper.execute("DELETE FROM user WHERE id = ?", id) > 0;
+        return helper.update("DELETE FROM user WHERE id = ?", id) > 0;
     }
 }

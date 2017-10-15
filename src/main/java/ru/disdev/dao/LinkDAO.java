@@ -2,14 +2,14 @@ package ru.disdev.dao;
 
 import ru.disdev.entity.ForeignKey;
 import ru.disdev.entity.crud.Link;
-import ru.disdev.jdbchelper.QueryResult;
+import ru.disdev.entity.crud.QuestionStatistic;
 
 import java.util.List;
 
 public class LinkDAO extends DAO<Link> {
     @Override
     public List<Link> load() {
-        return helper.queryForList("SELECT * FROM link", rs -> {
+        return helper.query("SELECT * FROM link", (rs, index) -> {
             Link link = new Link();
             link.setAnswer(new ForeignKey(rs.getString("answer_id"), null));
             link.setQuestion(new ForeignKey(rs.getString("question_id"), null));
@@ -20,7 +20,7 @@ public class LinkDAO extends DAO<Link> {
 
     @Override
     public Link save(Link crud) {
-        helper.execute("REPLACE INTO link(question_id, answer_id, user_id) VALUES(?,?,?)",
+        helper.update("REPLACE INTO link(question_id, answer_id, user_id) VALUES(?,?,?)",
                 crud.getQuestion().getValue(),
                 crud.getAnswer().getValue(),
                 crud.getUser().getValue());
@@ -31,14 +31,19 @@ public class LinkDAO extends DAO<Link> {
         return helper.queryForObject("SELECT count(*) AS count, " +
                 "question_id FROM link " +
                 "GROUP BY question_id " +
-                "HAVING question_id = ?", rs -> rs.getInt("count"), questionId);
+                "HAVING question_id = ?", (rs, index) -> rs.getInt("count"), questionId);
     }
 
-    public QueryResult getAnswerCount(String questionId) {
+    public List<QuestionStatistic> getAnswerCount(String questionId, int questionAnswerCount) {
         return helper.query("SELECT answer_id, count(*) AS count " +
                 "FROM link " +
                 "WHERE question_id = ? " +
-                "GROUP BY answer_id", questionId);
+                "GROUP BY answer_id", (rs, index) -> {
+            QuestionStatistic questionStatistic = new QuestionStatistic();
+            questionStatistic.setAnswer(rs.getString("answer_id"));
+            questionStatistic.setStatistic((((double) rs.getInt("count") / (double) questionAnswerCount) * 100.) + "%");
+            return questionStatistic;
+        }, questionId);
     }
 
     @Override
@@ -47,7 +52,7 @@ public class LinkDAO extends DAO<Link> {
     }
 
     public boolean delete(Link link) {
-        return helper.execute("DELETE FROM link WHERE " +
+        return helper.update("DELETE FROM link WHERE " +
                         "user_id = ? AND " +
                         "question_id = ? AND " +
                         "answer_id = ?", link.getUser().getValue(),
