@@ -22,7 +22,7 @@ public class PollDAO extends DAO<Poll> {
 
     @Override
     public Poll save(Poll poll) {
-        helper.execute("INSERT INTO poll VALUES(?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+        helper.execute("INSERT INTO poll(id, title, category, start_date, end_date) VALUES(?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                         "title=?, category=?, start_date=?, end_date=?",
                 poll.getId(),
                 poll.getTitle(),

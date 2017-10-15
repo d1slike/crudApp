@@ -11,7 +11,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import ru.disdev.MainApplication;
 import ru.disdev.datasource.ValueSource;
 import ru.disdev.entity.Crud;
@@ -28,7 +27,6 @@ import static ru.disdev.utils.TableUtils.fillTableColumns;
 
 public class MainController implements Controller {
 
-    private static final FileChooser.ExtensionFilter CSV_FILER = new FileChooser.ExtensionFilter("CSV file", "*.csv");
     public TableView<Link> linkTable;
     public TableView<User> userTable;
     public JFXButton statisticButton;
@@ -54,7 +52,6 @@ public class MainController implements Controller {
     private JFXSpinner spinner;
 
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
-    private final FileChooser fileChooser = new FileChooser();
 
     private int selectedItem;
     private int selectedCrud;
@@ -72,8 +69,6 @@ public class MainController implements Controller {
         editButton.setGraphic(new Icon("PENCIL"));
         editButton.setVisible(false);
         directoryChooser.setTitle("Директория для экспорта");
-        fileChooser.setTitle("Файл для импорта");
-        fileChooser.setSelectedExtensionFilter(CSV_FILER);
         deleteButton.setVisible(false);
         statisticButton.setVisible(false);
         statisticButton.setOnAction(this::onStatisticButtonClick);
@@ -157,7 +152,7 @@ public class MainController implements Controller {
                     ValueSource.update();
                 });
             }
-            controller.initialize();
+            controller.show();
         });
         event.consume();
     }
@@ -199,7 +194,7 @@ public class MainController implements Controller {
             } else {
                 controller = new InputDataController<>(new User(), user -> UserService.getInstance().save(user));
             }
-            controller.initialize();
+            controller.show();
         });
         event.consume();
     }
@@ -207,8 +202,20 @@ public class MainController implements Controller {
     private void onExportButtonClick(ActionEvent event) {
         updateControlStatus(false);
         File directory = directoryChooser.showDialog(MainApplication.getMainStage());
+        String fileName;
+        if (selectedCrud == 0) {
+            fileName = "Опросы";
+        } else if (selectedCrud == 1) {
+            fileName = "Вопросы";
+        } else if (selectedCrud == 2) {
+            fileName = "Ответы";
+        } else if (selectedCrud == 3) {
+            fileName = "Результаты";
+        } else {
+            fileName = "Пользватели";
+        }
         if (directory != null) {
-            ExportResultService service = new ExportResultService(getSelectedCrudData(), directory);
+            ExportResultService service = new ExportResultService(getSelectedCrudData(), directory, fileName);
             service.setOnRunning(e -> spinner.setVisible(true));
             service.setOnSucceeded(e -> {
                 updateControlStatus(true);

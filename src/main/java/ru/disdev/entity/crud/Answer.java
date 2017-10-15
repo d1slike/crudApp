@@ -9,7 +9,7 @@ public class Answer extends Crud {
     @TextField(name = "Текст ответа", description = "Текст ответа", type = Type.STRING)
     @Column(name = "Текст ответа", description = "Текст ответа", type = Type.STRING)
     private StringProperty title = new SimpleStringProperty();
-    @TextField(name = "Номер ответа", description = "Номер ответа", type = Type.INTEGER)
+    @TextField(name = "Номер ответа", description = "Номер ответа", type = Type.INTEGER, isRequired = false)
     @Column(name = "Номер ответа", description = "Номер ответа", type = Type.INTEGER)
     private IntegerProperty number = new SimpleIntegerProperty();
     @ComboBox(name = "Вопрос", description = "Текст вопроса")

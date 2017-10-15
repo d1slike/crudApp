@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import ru.disdev.dao.AnswerDAO;
 import ru.disdev.entity.Crud;
 import ru.disdev.entity.crud.Answer;
-import ru.disdev.entity.crud.Link;
 
 import java.util.Map;
 import java.util.Set;
@@ -52,14 +51,6 @@ public class AnswerService implements Service {
         Answer remove = answers.remove(index);
         if (remove != null) {
             answerDAO.delete(remove.getId());
-            ObservableList<Link> links = LinkService.getInstance().getLinks();
-            for (int i = 0, linksSize = links.size(); i < linksSize; i++) {
-                Link link = links.get(i);
-                if (link.getAnswer().getValue().equals(remove.getId())) {
-                    LinkService.getInstance().delete(i);
-                }
-
-            }
         }
     }
 }

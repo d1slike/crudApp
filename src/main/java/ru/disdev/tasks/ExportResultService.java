@@ -18,9 +18,11 @@ public class ExportResultService extends Service<Void> {
 
     private final List<? extends Crud> resultsToExport;
     private final File file;
+    private final String fileName;
 
-    public ExportResultService(List<? extends Crud> resultsToExport, File file) {
+    public ExportResultService(List<? extends Crud> resultsToExport, File file, String fileName) {
         this.resultsToExport = resultsToExport;
+        this.fileName = fileName;
         this.file = file;
     }
 
@@ -29,7 +31,7 @@ public class ExportResultService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                File target = new File(file.getAbsolutePath() + "/results.csv");
+                File target = new File(file.getAbsolutePath() + "/" + fileName + ".csv");
                 try (CSVWriter writer = new CSVWriter(getWin1251FileWriter(target), ';')) {
                     writer.writeNext(makeTableHeader());
                     resultsToExport.stream()

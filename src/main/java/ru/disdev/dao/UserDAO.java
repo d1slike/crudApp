@@ -13,22 +13,22 @@ public class UserDAO extends DAO<User> {
             user.setId(rs.getString("id"));
             user.setBirthday(rs.getDate("birthday").toLocalDate());
             user.setFio(rs.getString("fio"));
-            user.setSex(Sex.J.toString().equals(rs.getString("sex")) ? Sex.J : Sex.M);
+            user.setSex(Sex.valueOf(rs.getString("sex")));
             return user;
         });
     }
 
     @Override
     public User save(User crud) {
-        helper.execute("INSERT INTO user VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE " +
+        helper.execute("INSERT INTO user(id, fio, birthday, sex) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE " +
                         "fio=?, birthday=?, sex=?",
                 crud.getId(),
                 crud.getFio(),
                 crud.getBirthday(),
-                crud.getSex().toString(),
+                crud.getSex().name(),
                 crud.getFio(),
                 crud.getBirthday(),
-                crud.getSex().toString());
+                crud.getSex().name());
         return crud;
     }
 

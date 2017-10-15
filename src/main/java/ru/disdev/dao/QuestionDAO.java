@@ -22,7 +22,7 @@ public class QuestionDAO extends DAO<Question> {
     @Override
     public Question save(Question crud) {
         helper.execute("INSERT INTO question VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
-                        "title=?, descption=?, poll_id=?",
+                        "title=?, description=?, poll_id=?",
                 crud.getId(),
                 crud.getTitle(),
                 crud.getDescription(),

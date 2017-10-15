@@ -20,7 +20,7 @@ public class LinkDAO extends DAO<Link> {
 
     @Override
     public Link save(Link crud) {
-        helper.execute("REPLACE INTO link VALUES(?,?,?)",
+        helper.execute("REPLACE INTO link(question_id, answer_id, user_id) VALUES(?,?,?)",
                 crud.getQuestion().getValue(),
                 crud.getAnswer().getValue(),
                 crud.getUser().getValue());

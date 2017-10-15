@@ -8,15 +8,15 @@ import ru.disdev.entity.input.ComboBox;
 public class Link extends Crud {
     @ComboBox(name = "Вопрос")
     @ValueSource(methodName = "questionId")
-    @Column(name = "Вопрос", description = "Заголовок опроса", type = Type.OBJECT, width = 260)
+    @Column(name = "Вопрос", description = "Заголовок опроса", type = Type.OBJECT, width = 200)
     private ObjectProperty<ForeignKey> question = new SimpleObjectProperty<>();
     @ComboBox(name = "Ответ")
     @ValueSource(methodName = "answerId")
-    @Column(name = "Ответ", description = "Заголовок ответа", type = Type.OBJECT, width = 260)
+    @Column(name = "Ответ", description = "Заголовок ответа", type = Type.OBJECT, width = 200)
     private ObjectProperty<ForeignKey> answer = new SimpleObjectProperty<>();
     @ComboBox(name = "Опрошенный")
     @ValueSource(methodName = "userId")
-    @Column(name = "Опрошенный", description = "Опрошенный", type = Type.OBJECT, width = 260)
+    @Column(name = "Опрошенный", description = "Опрошенный", type = Type.OBJECT, width = 200)
     private ObjectProperty<ForeignKey> user = new SimpleObjectProperty<>();
 
     public ForeignKey getQuestion() {

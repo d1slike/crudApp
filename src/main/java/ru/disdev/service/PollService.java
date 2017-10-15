@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.PollDAO;
 import ru.disdev.entity.crud.Poll;
-import ru.disdev.entity.crud.Question;
 
 import java.util.UUID;
 
@@ -43,13 +42,6 @@ public class PollService implements Service {
         Poll poll = polls.remove(index);
         if (poll != null) {
             pollDAO.delete(poll.getId());
-            ObservableList<Question> questions = QuestionService.getInstance().getQuestions();
-            for (int i = 0, questionsSize = questions.size(); i < questionsSize; i++) {
-                Question question = questions.get(i);
-                if (question.getPollId().getValue().equals(poll.getId())) {
-                    QuestionService.getInstance().delete(i);
-                }
-            }
         }
     }
 

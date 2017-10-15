@@ -12,7 +12,7 @@ public class Question extends Crud {
     @TextField(name = "Вопрос", description = "Заголовок вопроса", type = Type.STRING)
     @Column(name = "Вопрос", description = "Заголовок опроса", type = Type.STRING)
     private StringProperty title = new SimpleStringProperty();
-    @TextField(name = "Дополнительно", description = "Допонительное описание опроса", type = Type.STRING)
+    @TextField(name = "Дополнительно", description = "Допонительное описание опроса", type = Type.STRING, isRequired = false)
     @Column(name = "Дополнительно", description = "Допонительное описание опроса", type = Type.STRING)
     private StringProperty description = new SimpleStringProperty();
     @ComboBox(name = "Опрос", description = "Заголовок опроса")

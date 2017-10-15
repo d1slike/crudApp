@@ -3,7 +3,6 @@ package ru.disdev.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ru.disdev.dao.UserDAO;
-import ru.disdev.entity.crud.Link;
 import ru.disdev.entity.crud.User;
 
 import java.util.UUID;
@@ -31,13 +30,6 @@ public class UserService implements Service {
         User user = users.remove(index);
         if (user != null) {
             userDAO.delete(user.getId());
-            ObservableList<Link> links = LinkService.getInstance().getLinks();
-            for (int i = 0, linksSize = links.size(); i < linksSize; i++) {
-                Link link = links.get(i);
-                if (link.getUser().getValue().equals(user.getId())) {
-                    LinkService.getInstance().delete(i);
-                }
-            }
         }
     }
 

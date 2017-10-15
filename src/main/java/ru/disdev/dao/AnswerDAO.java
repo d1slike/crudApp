@@ -21,7 +21,7 @@ public class AnswerDAO extends DAO<Answer> {
 
     @Override
     public Answer save(Answer crud) {
-        helper.execute("INSERT INTO answer VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
+        helper.execute("INSERT INTO answer(id, number, title, question_id) VALUES(?, ?, ?, ?) ON DUPLICATE KEY UPDATE " +
                         "number=?, title=?, question_id=?",
                 crud.getId(),
                 crud.getNumber(),
