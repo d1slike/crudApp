@@ -30,11 +30,18 @@
       </VBox>
    </right>
    <bottom>
-      <JFXSpinner fx:id="spinner" visible="false" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-             <Insets bottom="10.0" top="10.0" />
-         </BorderPane.margin>
-      </JFXSpinner>
+       <HBox alignment="CENTER_LEFT" fillHeight="false" prefHeight="72.0" prefWidth="1000.0"
+             BorderPane.alignment="TOP_CENTER">
+           <children>
+               <JFXButton fx:id="filterButton" text="ФИЛЬТР"/>
+               <JFXButton fx:id="clearFilterButton" text="ОЧИСТИТЬ ФИЛЬТР" visible="false"/>
+               <JFXSpinner fx:id="spinner" visible="false" BorderPane.alignment="CENTER">
+                   <BorderPane.margin>
+                       <Insets bottom="10.0" top="10.0"/>
+                   </BorderPane.margin>
+               </JFXSpinner>
+           </children>
+       </HBox>
    </bottom>
    <center>
       <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">

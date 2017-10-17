@@ -3,6 +3,7 @@ package ru.disdev.dao;
 import ru.disdev.entity.crud.Poll;
 
 import java.sql.Date;
+import java.util.Collections;
 import java.util.List;
 
 import static ru.disdev.utils.FilterUtilsKt.toQuery;
@@ -11,15 +12,20 @@ public class PollDAO extends DAO<Poll> {
 
     @Override
     public List<Poll> find(Object filter) {
-        return helper.query("SELECT * FROM poll" + toQuery(filter), (rs, index) -> {
-            Poll poll = new Poll();
-            poll.setId(rs.getString("id"));
-            poll.setTitle(rs.getString("title"));
-            poll.setCategory(rs.getString("category"));
-            poll.setEndDate(rs.getTimestamp("end_date").toLocalDateTime().toLocalDate());
-            poll.setStartDate(rs.getTimestamp("start_date").toLocalDateTime().toLocalDate());
-            return poll;
-        });
+        try {
+            return helper.query("SELECT * FROM poll" + toQuery(filter), (rs, index) -> {
+                Poll poll = new Poll();
+                poll.setId(rs.getString("id"));
+                poll.setTitle(rs.getString("title"));
+                poll.setCategory(rs.getString("category"));
+                poll.setEndDate(rs.getTimestamp("end_date").toLocalDateTime().toLocalDate());
+                poll.setStartDate(rs.getTimestamp("start_date").toLocalDateTime().toLocalDate());
+                return poll;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
     @Override

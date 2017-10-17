@@ -23,7 +23,7 @@ fun toQuery(obj: Any?): String {
                 val operator = filter.operator
                 val value = FieldUtils.readField(it, obj)
                 val operand: String? = when (value) {
-                    is StringProperty -> value.value
+                    is StringProperty -> "'${value.value}'"
                     is IntegerProperty -> value.value.toString()
                     is DoubleProperty -> value.value.toString()
                     is BooleanProperty -> value.value.toString()
@@ -33,17 +33,19 @@ fun toQuery(obj: Any?): String {
                         if (propValue != null) {
                             stringValue = when (propValue) {
                                 is ForeignKey -> propValue.value
+                                is Enum<*> -> propValue.name
                                 else -> propValue.toString()
                             }
+                            stringValue = "'$stringValue'"
                         }
                         stringValue
                     }
                     else -> null
                 }
-                if (operand != null && !operand.isBlank()) {
+                if (operand != null && !operand.isBlank() && operand != "''") {
                     val part = when (operator) {
-                        Operator.LIKE -> "LIKE %$operand%"
-                        else -> "= $operand"
+                        Operator.LIKE -> "LIKE '%${operand.replace("'", "")}%' "
+                        else -> " = $operand"
                     }
                     return@map "$name $part"
                 }

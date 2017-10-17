@@ -16,7 +16,9 @@ buildscript {
 apply plugin: "kotlin"
 apply plugin: 'java'
 apply plugin: 'javafx-gradle-plugin'
-
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 test {
     systemProperty "file.encoding", "utf-8"

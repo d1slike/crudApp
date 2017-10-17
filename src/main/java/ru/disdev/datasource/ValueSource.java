@@ -12,25 +12,25 @@ import static java.util.stream.Collectors.toMap;
 
 public class ValueSource {
     public static Map<String, ForeignKey> pollId() {
-        return PollService.getInstance().getPolls().stream()
+        return PollService.getInstance().getPolls(null).stream()
                 .map(poll -> new ForeignKey(poll.getId(), poll.getTitle()))
                 .collect(toMap(ForeignKey::getValue, foreignKey -> foreignKey));
     }
 
     public static Map<String, ForeignKey> questionId() {
-        return QuestionService.getInstance().getQuestions().stream()
+        return QuestionService.getInstance().getQuestions(null).stream()
                 .map(question -> new ForeignKey(question.getId(), question.getTitle()))
                 .collect(toMap(ForeignKey::getValue, foreignKey -> foreignKey));
     }
 
     public static Map<String, ForeignKey> userId() {
-        return UserService.getInstance().getUsers().stream()
+        return UserService.getInstance().getUsers(null).stream()
                 .map(user -> new ForeignKey(user.getId(), user.getFio()))
                 .collect(toMap(ForeignKey::getValue, foreignKey -> foreignKey));
     }
 
     public static Map<String, ForeignKey> answerId() {
-        return AnswerService.getInstance().getAnswers().stream()
+        return AnswerService.getInstance().getAnswers(null).stream()
                 .map(answer -> new ForeignKey(answer.getId(), answer.getTitle()))
                 .collect(toMap(ForeignKey::getValue, foreignKey -> foreignKey));
     }

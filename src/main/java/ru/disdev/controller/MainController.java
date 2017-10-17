@@ -52,7 +52,6 @@ public class MainController implements Controller {
     private JFXButton exportButton;
     @FXML
     private JFXSpinner spinner;
-    private Object filter;
     @FXML
     private JFXButton filterButton;
     @FXML
@@ -84,13 +83,11 @@ public class MainController implements Controller {
         deleteButton.setGraphic(trash);
         deleteButton.setOnAction(this::onDeleteButtonClick);
         clearFilterButton.setOnAction(e -> {
-            filter = null;
-            fetchData();
+            fetchData(null);
             clearFilterButton.setVisible(false);
         });
         tabs.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             selectedCrud = newValue.intValue();
-            filter = null;
             if (selectedCrud == 0) {
                 filterButton.setOnAction(onClickFilter(PollsFilter::new));
             } else if (selectedCrud == 1) {
@@ -104,8 +101,9 @@ public class MainController implements Controller {
             }
             Stream.of(pollTable, questionTable, answerTable, userTable, linkTable)
                     .forEach(tableView -> tableView.getSelectionModel().clearSelection());
-            fetchData();
+            fetchData(null);
         });
+        filterButton.setOnAction(onClickFilter(PollsFilter::new));
         tabs.getSelectionModel().select(0);
         Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView ->
                 tableView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -119,33 +117,48 @@ public class MainController implements Controller {
         fillTableColumns(Answer.class, answerTable);
         fillTableColumns(User.class, userTable);
         fillTableColumns(Link.class, linkTable);
-        pollTable.setItems(PollService.getInstance().getPolls(null));
+        fetchData(null);
     }
 
     private EventHandler<ActionEvent> onClickFilter(Supplier supplier) {
-        return event -> new InputDataController<>(supplier.get(), fullFilter -> {
-            this.filter = fullFilter;
+        return event -> new InputDataController<>(supplier.get(), "ПОИСК", fullFilter -> {
             clearFilterButton.setVisible(true);
-            fetchData();
+            fetchData(fullFilter);
         }).show();
     }
 
-    private void fetchData() {
+    private void fetchData(Object filter) {
+        spinner.setVisible(true);
         if (selectedCrud == 0) {
             CompletableFuture.supplyAsync(() -> PollService.getInstance().getPolls(filter))
-                    .thenAccept(list -> Platform.runLater(() -> pollTable.setItems(list)));
+                    .thenAccept(list -> Platform.runLater(() -> {
+                        pollTable.setItems(list);
+                        spinner.setVisible(false);
+                    }));
         } else if (selectedCrud == 1) {
             CompletableFuture.supplyAsync(() -> QuestionService.getInstance().getQuestions(filter))
-                    .thenAccept(list -> Platform.runLater(() -> questionTable.setItems(list)));
+                    .thenAccept(list -> Platform.runLater(() -> {
+                        questionTable.setItems(list);
+                        spinner.setVisible(false);
+                    }));
         } else if (selectedCrud == 2) {
             CompletableFuture.supplyAsync(() -> AnswerService.getInstance().getAnswers(filter))
-                    .thenAccept(list -> Platform.runLater(() -> answerTable.setItems(list)));
+                    .thenAccept(list -> Platform.runLater(() -> {
+                        answerTable.setItems(list);
+                        spinner.setVisible(false);
+                    }));
         } else if (selectedCrud == 3) {
             CompletableFuture.supplyAsync(() -> LinkService.getInstance().getLinks(filter))
-                    .thenAccept(list -> Platform.runLater(() -> linkTable.setItems(list)));
+                    .thenAccept(list -> Platform.runLater(() -> {
+                        linkTable.setItems(list);
+                        spinner.setVisible(false);
+                    }));
         } else {
             CompletableFuture.supplyAsync(() -> UserService.getInstance().getUsers(filter))
-                    .thenAccept(list -> Platform.runLater(() -> userTable.setItems(list)));
+                    .thenAccept(list -> Platform.runLater(() -> {
+                        userTable.setItems(list);
+                        spinner.setVisible(false);
+                    }));
         }
     }
 
