@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXSpinner;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
@@ -12,7 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import ru.disdev.MainApplication;
-import ru.disdev.entity.Crud;
+import ru.disdev.entity.*;
 import ru.disdev.entity.crud.*;
 import ru.disdev.service.*;
 import ru.disdev.tasks.ExportResultService;
@@ -21,6 +22,7 @@ import ru.disdev.utils.PopupUtils;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static ru.disdev.utils.TableUtils.fillTableColumns;
@@ -50,6 +52,11 @@ public class MainController implements Controller {
     private JFXButton exportButton;
     @FXML
     private JFXSpinner spinner;
+    private Object filter;
+    @FXML
+    private JFXButton filterButton;
+    @FXML
+    private JFXButton clearFilterButton;
 
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
 
@@ -76,26 +83,28 @@ public class MainController implements Controller {
         trash.setTextFill(Color.RED);
         deleteButton.setGraphic(trash);
         deleteButton.setOnAction(this::onDeleteButtonClick);
+        clearFilterButton.setOnAction(e -> {
+            filter = null;
+            fetchData();
+            clearFilterButton.setVisible(false);
+        });
         tabs.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             selectedCrud = newValue.intValue();
+            filter = null;
+            if (selectedCrud == 0) {
+                filterButton.setOnAction(onClickFilter(PollsFilter::new));
+            } else if (selectedCrud == 1) {
+                filterButton.setOnAction(onClickFilter(QuestionsFilter::new));
+            } else if (selectedCrud == 2) {
+                filterButton.setOnAction(onClickFilter(AnswerFilter::new));
+            } else if (selectedCrud == 3) {
+                filterButton.setOnAction(onClickFilter(LinkFilter::new));
+            } else {
+                filterButton.setOnAction(onClickFilter(UserFilter::new));
+            }
             Stream.of(pollTable, questionTable, answerTable, userTable, linkTable)
                     .forEach(tableView -> tableView.getSelectionModel().clearSelection());
-            if (selectedCrud == 0) {
-                CompletableFuture.supplyAsync(() -> PollService.getInstance().getPolls())
-                        .thenAccept(list -> Platform.runLater(() -> pollTable.setItems(list)));
-            } else if (selectedCrud == 1) {
-                CompletableFuture.supplyAsync(() -> QuestionService.getInstance().getQuestions())
-                        .thenAccept(list -> Platform.runLater(() -> questionTable.setItems(list)));
-            } else if (selectedCrud == 2) {
-                CompletableFuture.supplyAsync(() -> AnswerService.getInstance().getAnswers())
-                        .thenAccept(list -> Platform.runLater(() -> answerTable.setItems(list)));
-            } else if (selectedCrud == 3) {
-                CompletableFuture.supplyAsync(() -> LinkService.getInstance().getLinks())
-                        .thenAccept(list -> Platform.runLater(() -> linkTable.setItems(list)));
-            } else {
-                CompletableFuture.supplyAsync(() -> UserService.getInstance().getUsers())
-                        .thenAccept(list -> Platform.runLater(() -> userTable.setItems(list)));
-            }
+            fetchData();
         });
         tabs.getSelectionModel().select(0);
         Stream.of(pollTable, questionTable, answerTable, userTable, linkTable).forEach(tableView ->
@@ -110,7 +119,34 @@ public class MainController implements Controller {
         fillTableColumns(Answer.class, answerTable);
         fillTableColumns(User.class, userTable);
         fillTableColumns(Link.class, linkTable);
-        pollTable.setItems(PollService.getInstance().getPolls());
+        pollTable.setItems(PollService.getInstance().getPolls(null));
+    }
+
+    private EventHandler<ActionEvent> onClickFilter(Supplier supplier) {
+        return event -> new InputDataController<>(supplier.get(), fullFilter -> {
+            this.filter = fullFilter;
+            clearFilterButton.setVisible(true);
+            fetchData();
+        }).show();
+    }
+
+    private void fetchData() {
+        if (selectedCrud == 0) {
+            CompletableFuture.supplyAsync(() -> PollService.getInstance().getPolls(filter))
+                    .thenAccept(list -> Platform.runLater(() -> pollTable.setItems(list)));
+        } else if (selectedCrud == 1) {
+            CompletableFuture.supplyAsync(() -> QuestionService.getInstance().getQuestions(filter))
+                    .thenAccept(list -> Platform.runLater(() -> questionTable.setItems(list)));
+        } else if (selectedCrud == 2) {
+            CompletableFuture.supplyAsync(() -> AnswerService.getInstance().getAnswers(filter))
+                    .thenAccept(list -> Platform.runLater(() -> answerTable.setItems(list)));
+        } else if (selectedCrud == 3) {
+            CompletableFuture.supplyAsync(() -> LinkService.getInstance().getLinks(filter))
+                    .thenAccept(list -> Platform.runLater(() -> linkTable.setItems(list)));
+        } else {
+            CompletableFuture.supplyAsync(() -> UserService.getInstance().getUsers(filter))
+                    .thenAccept(list -> Platform.runLater(() -> userTable.setItems(list)));
+        }
     }
 
     private void onDeleteButtonClick(ActionEvent event) {
@@ -178,15 +214,15 @@ public class MainController implements Controller {
     }
 
     private void onNewResultButtonClick(ActionEvent event) {
-        if (selectedCrud == 1 && PollService.getInstance().getPolls().isEmpty()) {
+        if (selectedCrud == 1 && PollService.getInstance().getPolls(null).isEmpty()) {
             PopupUtils.warningPopup(root, "Необходимо добавить опросы!", 3);
             return;
-        } else if (selectedCrud == 2 && QuestionService.getInstance().getQuestions().isEmpty()) {
+        } else if (selectedCrud == 2 && QuestionService.getInstance().getQuestions(null).isEmpty()) {
             PopupUtils.warningPopup(root, "Необходимо добавить вопросы!", 3);
             return;
         } else if (selectedCrud == 3
-                && (AnswerService.getInstance().getAnswers().isEmpty()
-                || UserService.getInstance().getUsers().isEmpty())) {
+                && (AnswerService.getInstance().getAnswers(null).isEmpty()
+                || UserService.getInstance().getUsers(null).isEmpty())) {
             PopupUtils.warningPopup(root, "Необходимо добавить опрошенных и ответа!", 3);
             return;
         }
@@ -246,17 +282,17 @@ public class MainController implements Controller {
     private List<? extends Crud> getSelectedCrudData() {
         switch (selectedCrud) {
             case 0:
-                return PollService.getInstance().getPolls();
+                return PollService.getInstance().getPolls(null);
             case 1:
-                return QuestionService.getInstance().getQuestions();
+                return QuestionService.getInstance().getQuestions(null);
             case 2:
-                return AnswerService.getInstance().getAnswers();
+                return AnswerService.getInstance().getAnswers(null);
             case 3:
-                return LinkService.getInstance().getLinks();
+                return LinkService.getInstance().getLinks(null);
             case 4:
-                return UserService.getInstance().getUsers();
+                return UserService.getInstance().getUsers(null);
             default:
-                return UserService.getInstance().getUsers();
+                return UserService.getInstance().getUsers(null);
         }
     }
 

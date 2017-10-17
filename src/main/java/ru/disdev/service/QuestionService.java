@@ -24,8 +24,8 @@ public class QuestionService implements Service {
     private ObservableList<Question> questions = FXCollections.observableArrayList();
     private final QuestionDAO questionDAO = new QuestionDAO();
 
-    public ObservableList<Question> getQuestions() {
-        List<Question> list = questionDAO.findAll();
+    public ObservableList<Question> getQuestions(Object filter) {
+        List<Question> list = questionDAO.find(filter);
         Map<String, ForeignKey> pollId = ValueSource.pollId();
         list.forEach(question -> {
             ForeignKey foreignKey = question.getPollId();
@@ -39,7 +39,7 @@ public class QuestionService implements Service {
 
     @Override
     public void load() {
-        //questions.addAll(questionDAO.findAll());
+        //questions.addAll(questionDAO.find());
     }
 
     public void save(Question question) {

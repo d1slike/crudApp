@@ -32,11 +32,11 @@ public class LinkService implements Service {
 
     }
 
-    public ObservableList<Link> getLinks() {
+    public ObservableList<Link> getLinks(Object filter) {
         Map<String, ForeignKey> answerId = ValueSource.answerId();
         Map<String, ForeignKey> questionId = ValueSource.questionId();
         Map<String, ForeignKey> userId = ValueSource.userId();
-        List<Link> list = linkDAO.findAll();
+        List<Link> list = linkDAO.find(filter);
         list.forEach(link -> {
             ForeignKey user = userId.get(link.getUser().getValue());
             if (user != null) {

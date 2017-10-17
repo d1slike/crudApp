@@ -5,10 +5,12 @@ import ru.disdev.entity.crud.User;
 
 import java.util.List;
 
+import static ru.disdev.utils.FilterUtilsKt.toQuery;
+
 public class UserDAO extends DAO<User> {
     @Override
-    public List<User> findAll() {
-        return helper.query("SELECT * FROM user", (rs, index) -> {
+    public List<User> find(Object filter) {
+        return helper.query("SELECT * FROM user" + toQuery(filter), (rs, index) -> {
             User user = new User();
             user.setId(rs.getString("id"));
             user.setBirthday(rs.getDate("birthday").toLocalDate());

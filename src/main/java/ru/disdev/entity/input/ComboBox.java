@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface ComboBox {
     String name();
     String description() default "";
+
+    boolean defaultFirst() default true;
 }

@@ -5,11 +5,13 @@ import ru.disdev.entity.crud.Poll;
 import java.sql.Date;
 import java.util.List;
 
+import static ru.disdev.utils.FilterUtilsKt.toQuery;
+
 public class PollDAO extends DAO<Poll> {
 
     @Override
-    public List<Poll> findAll() {
-        return helper.query("SELECT * FROM poll", (rs, index) -> {
+    public List<Poll> find(Object filter) {
+        return helper.query("SELECT * FROM poll" + toQuery(filter), (rs, index) -> {
             Poll poll = new Poll();
             poll.setId(rs.getString("id"));
             poll.setTitle(rs.getString("title"));

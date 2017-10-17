@@ -5,11 +5,13 @@ import ru.disdev.entity.crud.Question;
 
 import java.util.List;
 
+import static ru.disdev.utils.FilterUtilsKt.toQuery;
+
 public class QuestionDAO extends DAO<Question> {
 
     @Override
-    public List<Question> findAll() {
-        return helper.query("SELECT * FROM question", (rs, index) -> {
+    public List<Question> find(Object filter) {
+        return helper.query("SELECT * FROM question" + toQuery(filter), (rs, index) -> {
             Question question = new Question();
             question.setId(rs.getString("id"));
             question.setTitle(rs.getString("title"));

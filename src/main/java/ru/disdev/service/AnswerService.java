@@ -24,9 +24,9 @@ public class AnswerService implements Service {
     private ObservableList<Answer> answers = FXCollections.observableArrayList();
     private final AnswerDAO answerDAO = new AnswerDAO();
 
-    public ObservableList<Answer> getAnswers() {
+    public ObservableList<Answer> getAnswers(Object filter) {
         Map<String, ForeignKey> questionId = ValueSource.questionId();
-        List<Answer> list = answerDAO.findAll();
+        List<Answer> list = answerDAO.find(filter);
         list.forEach(answer -> {
             ForeignKey foreignKey = answer.getQuestionId();
             if (questionId.containsKey(foreignKey.getValue())) {

@@ -7,11 +7,13 @@ import ru.disdev.entity.crud.Answer;
 import java.util.Collections;
 import java.util.List;
 
+import static ru.disdev.utils.FilterUtilsKt.toQuery;
+
 public class AnswerDAO extends DAO<Answer> {
 
     @Override
-    public List<Answer> findAll() {
-        return helper.query("SELECT * FROM answer", (rs, index) -> {
+    public List<Answer> find(Object filter) {
+        return helper.query("SELECT * FROM answer" + toQuery(filter), (rs, index) -> {
             Answer answer = new Answer();
             answer.setId(rs.getString("id"));
             answer.setTitle(rs.getString("title"));

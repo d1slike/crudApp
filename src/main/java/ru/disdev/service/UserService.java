@@ -33,8 +33,8 @@ public class UserService implements Service {
         }
     }
 
-    public ObservableList<User> getUsers() {
-        users = FXCollections.observableArrayList(userDAO.findAll());
+    public ObservableList<User> getUsers(Object filter) {
+        users = FXCollections.observableArrayList(userDAO.find(filter));
         return users;
     }
 

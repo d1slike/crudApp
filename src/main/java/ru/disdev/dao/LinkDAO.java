@@ -6,10 +6,12 @@ import ru.disdev.entity.crud.QuestionStatistic;
 
 import java.util.List;
 
+import static ru.disdev.utils.FilterUtilsKt.toQuery;
+
 public class LinkDAO extends DAO<Link> {
     @Override
-    public List<Link> findAll() {
-        return helper.query("SELECT * FROM link", (rs, index) -> {
+    public List<Link> find(Object filter) {
+        return helper.query("SELECT * FROM link" + toQuery(filter), (rs, index) -> {
             Link link = new Link();
             link.setAnswer(new ForeignKey(rs.getString("answer_id"), null));
             link.setQuestion(new ForeignKey(rs.getString("question_id"), null));

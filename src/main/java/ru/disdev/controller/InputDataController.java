@@ -271,7 +271,7 @@ public class InputDataController<T> implements Controller {
                 newBox.getItems().addAll(clazz.getEnumConstants());
                 newBox.valueProperty().bindBidirectional((Property) FieldUtils.readField(field, data));
                 Object value = newBox.valueProperty().getValue();
-                if (value == null) {
+                if (value == null && comboBox.defaultFirst()) {
                     newBox.setValue(newBox.getItems().get(0));
                 }
             }
@@ -286,7 +286,9 @@ public class InputDataController<T> implements Controller {
                         = (Property<ForeignKey>) FieldUtils.readField(field, data);
                 newBox.valueProperty().bindBidirectional(property);
                 if (property.getValue() == null) {
-                    newBox.setValue(newBox.getItems().get(0));
+                    if (comboBox.defaultFirst()) {
+                        newBox.setValue(newBox.getItems().get(0));
+                    }
                 } else if (items.containsKey(property.getValue().getValue())) {
                     property.setValue(items.get(property.getValue().getValue()));
                 }
